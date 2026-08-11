@@ -7,6 +7,7 @@ __pycache__/
 
 # 로컬 개발용 DB 파일
 db.sqlite3
+media/
 
 # 정적 파일 모음
 staticfiles/
@@ -18,3 +19,9 @@ venv/
 # 로그 & OS 잡동사니
 *.log
 .DS_Store
+Thumbs.db
+
+# 개발 툴
+.idea/
+*.iws
+.vscode/

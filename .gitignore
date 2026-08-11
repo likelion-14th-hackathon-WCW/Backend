@@ -1,0 +1,20 @@
+# python 캐시
+__pycache__/
+*.pyc
+
+# 민감 정보
+.env
+
+# 로컬 개발용 DB 파일
+db.sqlite3
+
+# 정적 파일 모음
+staticfiles/
+
+# 가상환경
+.venv/
+venv/
+
+# 로그 & OS 잡동사니
+*.log
+.DS_Store

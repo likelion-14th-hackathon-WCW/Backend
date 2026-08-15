@@ -64,6 +64,8 @@ class Item(models.Model):
     color = models.CharField(max_length=20, null=True, blank=True, help_text="사용자가 고른 전체 색상") # 선택한 색상
     image_url = models.CharField(max_length=255, null=True, blank=True, help_text="저장된 이미지 경로") # 저장 이미지 경로
     created_at = models.DateTimeField(auto_now_add=True) # 생성 일시
+    title = models.CharField(max_length=100, null=True, blank=True, help_text="조합 제목") # TODO: 컴포넌트 이름 조합, 추후 로직 교체 예정
+    description = models.CharField(max_length=255, null=True, blank=True, help_text="조합 설명 문구") # TODO: 임시, 추후 로직 교체 예정
 
     class Meta:
         db_table = "item"

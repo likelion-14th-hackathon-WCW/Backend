@@ -20,7 +20,7 @@ class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
         fields = "__all__"
-        read_only_fields = ("created_at",) # created_at 설정 추가
+        read_only_fields = ("created_at", "title")
 
     # type 검증 로직
     def validate(self, data):

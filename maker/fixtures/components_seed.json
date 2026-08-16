@@ -5,10 +5,9 @@
     "fields": {
       "name": "2026 봄",
       "start_date": "2026-03-01",
-      "end_date": "2026-08-31"
+      "end_date": "2026-05-31"
     }
   },
-
   {
     "model": "maker.component",
     "pk": 1,
@@ -17,7 +16,9 @@
       "name": "국화 매듭",
       "color": "#F4C430",
       "meaning": "국화는 서리를 이겨내고 피어나는 모습에서 장수와 인내, 굳은 절개를 상징합니다.",
-      "season": null
+      "season": null,
+      "image_url": "knot_chrysanthemum",
+      "feature_image_url": null
     }
   },
   {
@@ -28,7 +29,9 @@
       "name": "연꽃 매듭",
       "color": "#F7C6D9",
       "meaning": "진흙 속에서도 맑게 피어나는 연꽃은 순수함과 깨달음, 새로운 시작을 상징합니다.",
-      "season": 1
+      "season": 1,
+      "image_url": "knot_lotus",
+      "feature_image_url": "feature_lotus"
     }
   },
   {
@@ -39,7 +42,9 @@
       "name": "매화 매듭",
       "color": "#EDEDED",
       "meaning": "매서운 겨울을 견디고 가장 먼저 피어나는 매화는 인내와 절개, 새봄의 전령을 상징합니다.",
-      "season": null
+      "season": null,
+      "image_url": "knot_plum_blossom",
+      "feature_image_url": null
     }
   },
   {
@@ -50,7 +55,9 @@
       "name": "모란 매듭",
       "color": "#C2185B",
       "meaning": "예로부터 '꽃 중의 왕'이라 불린 모란은 부귀와 영화를 상징합니다.",
-      "season": null
+      "season": null,
+      "image_url": "knot_peony",
+      "feature_image_url": null
     }
   },
   {
@@ -61,7 +68,9 @@
       "name": "석류 매듭",
       "color": "#B22222",
       "meaning": "씨앗이 가득한 석류는 다산과 번영, 풍요로운 앞날을 상징합니다.",
-      "season": null
+      "season": null,
+      "image_url": "knot_pomegranate",
+      "feature_image_url": null
     }
   },
   {
@@ -72,10 +81,11 @@
       "name": "나비 매듭",
       "color": "#7E57C2",
       "meaning": "자유롭게 날아오르는 나비는 사랑과 행복한 변화, 재회를 상징합니다.",
-      "season": null
+      "season": null,
+      "image_url": "knot_butterfly",
+      "feature_image_url": null
     }
   },
-
   {
     "model": "maker.component",
     "pk": 7,
@@ -84,7 +94,9 @@
       "name": "골드 타이거 장식",
       "color": "#D4AF37",
       "meaning": "호랑이는 나쁜 기운을 물리치고 강력한 보호를 기원하는 전통적인 수호의 상징입니다.",
-      "season": null
+      "season": null,
+      "image_url": "decoration_gold_tiger",
+      "feature_image_url": null
     }
   },
   {
@@ -95,7 +107,9 @@
       "name": "옥 팬던트",
       "color": "#7FBF9E",
       "meaning": "맑고 단단한 옥은 고귀함과 변치 않는 품격을 상징합니다.",
-      "season": null
+      "season": null,
+      "image_url": "decoration_jade_pendant",
+      "feature_image_url": null
     }
   },
   {
@@ -106,7 +120,9 @@
       "name": "박쥐 장식",
       "color": "#5C4033",
       "meaning": "예로부터 박쥐는 발음이 비슷한 '복(福)'과 연결되어 복과 건강을 상징합니다.",
-      "season": null
+      "season": null,
+      "image_url": "decoration_bat",
+      "feature_image_url": null
     }
   },
   {
@@ -117,7 +133,9 @@
       "name": "토끼 장식",
       "color": "#E8DCC8",
       "meaning": "토끼는 지혜와 다산, 풍요로운 살림을 상징하는 동물로 여겨져 왔습니다.",
-      "season": null
+      "season": null,
+      "image_url": "decoration_rabbit",
+      "feature_image_url": null
     }
   },
   {
@@ -128,7 +146,9 @@
       "name": "학 장식",
       "color": "#FFFFFF",
       "meaning": "고고하게 하늘을 나는 학은 장수와 고귀함, 신선의 세계를 상징합니다.",
-      "season": null
+      "season": null,
+      "image_url": "decoration_crane",
+      "feature_image_url": null
     }
   },
   {
@@ -139,10 +159,11 @@
       "name": "비취 장식",
       "color": "#00A86B",
       "meaning": "맑고 청량한 비취색은 순수함과 재생, 봄의 생명력을 상징합니다.",
-      "season": 1
+      "season": 1,
+      "image_url": "decoration_emerald",
+      "feature_image_url": "feature_emerald"
     }
   },
-
   {
     "model": "maker.component",
     "pk": 13,
@@ -151,7 +172,9 @@
       "name": "흑색 술",
       "color": "#1A1A1A",
       "meaning": null,
-      "season": null
+      "season": null,
+      "image_url": "tassel_black",
+      "feature_image_url": null
     }
   },
   {
@@ -162,7 +185,9 @@
       "name": "진회색 술",
       "color": "#4D4D4D",
       "meaning": null,
-      "season": null
+      "season": null,
+      "image_url": "tassel_dark_gray",
+      "feature_image_url": null
     }
   },
   {
@@ -173,7 +198,9 @@
       "name": "회색 술",
       "color": "#808080",
       "meaning": null,
-      "season": null
+      "season": null,
+      "image_url": "tassel_gray",
+      "feature_image_url": null
     }
   },
   {
@@ -184,7 +211,9 @@
       "name": "연회색 술",
       "color": "#B3B3B3",
       "meaning": null,
-      "season": null
+      "season": null,
+      "image_url": "tassel_light_gray",
+      "feature_image_url": null
     }
   },
   {
@@ -195,7 +224,9 @@
       "name": "아이보리 술",
       "color": "#F5F0E6",
       "meaning": null,
-      "season": 1
+      "season": 1,
+      "image_url": "tassel_ivory",
+      "feature_image_url": "feature_ivory"
     }
   },
   {
@@ -206,7 +237,9 @@
       "name": "골드 술",
       "color": "#D4AF37",
       "meaning": null,
-      "season": 1
+      "season": 1,
+      "image_url": "tassel_gold",
+      "feature_image_url": "feature_gold"
     }
   }
 ]

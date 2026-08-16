@@ -35,6 +35,8 @@ class Component(models.Model):
         help_text="시즌 한정이면 연결, 상시 판매면 NULL",
     )
     image_url = models.CharField(max_length=255, null=True, blank=True, help_text="레이어 조립용 에셋 경로")
+    feature_image_url = models.CharField(max_length=255, null=True, blank=True,
+                                         help_text="시즌 상징 섹션 등 프로모션용 별도 이미지 (시즌 한정 항목에만 값 채워짐)")
 
 
     class Meta:

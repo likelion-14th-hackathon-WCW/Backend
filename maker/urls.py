@@ -12,5 +12,4 @@ urlpatterns = [
     path("items/", views.ItemCreateView.as_view(), name="item-create"),
     path("recommend/", views.RecommendView.as_view(), name="recommend"), # AI 노리개 추천 
     path("items/<int:pk>/recommend-products/", views.ProductRecommendView.as_view(), name="item-recommend-products"), # AI MCM 상품 추천
-    path("items/<int:pk>/claim/", views.ItemClaimView.as_view(), name="item-claim"),
 ]

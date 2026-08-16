@@ -47,10 +47,13 @@ class RankingView(APIView):
             .annotate(count=Count("id"))
             .order_by("-count")[:10]
         )
+
         component_ids = set()
         for row in aggregated:
             component_ids.update([row["knot_id"], row["tassel_id"], row["decoration_id"]])
-        names = {c.id: c.name for c in Component.objects.filter(id__in=component_ids)}
+        components = Component.objects.filter(id__in=component_ids)
+        names = {c.id: c.name for c in components}
+        images = {c.id: c.image_url for c in components}
 
         result = []
         for i, row in enumerate(aggregated):
@@ -66,16 +69,16 @@ class RankingView(APIView):
                 "rank": i + 1,
                 "knot_id": row["knot_id"],
                 "knot_name": names.get(row["knot_id"]),
+                "knot_image_url": images.get(row["knot_id"]),
                 "tassel_id": row["tassel_id"],
                 "tassel_name": names.get(row["tassel_id"]),
+                "tassel_image_url": images.get(row["tassel_id"]),
                 "decoration_id": row["decoration_id"],
                 "decoration_name": names.get(row["decoration_id"]),
+                "decoration_image_url": images.get(row["decoration_id"]),
                 "count": row["count"],
-                "image_url": sample.image_url if sample else None,
-                "creator": sample.user.username if sample and sample.user else None,
                 "title": sample.title if sample else None,
                 "description": sample.description if sample else None,
-                "image_url": sample.image_url if sample else None,
                 "creator": sample.user.username if sample and sample.user else None,
             })
         return Response(result)
@@ -106,31 +109,18 @@ class ItemCreateView(generics.CreateAPIView):
     serializer_class = ItemSerializer
     queryset = Item.objects.all()
 
+    permission_classes = [IsAuthenticated]  # 로그인 필수 - 비로그인이면 401
+
     def perform_create(self, serializer):
-        # TODO: 기획 답변 오면 교체 (사용자 직접 입력 또는 AI 생성으로)
-        knot = serializer.validated_data["knot"]
-        decoration = serializer.validated_data["decoration"]
-        serializer.save(
-            title=f"{knot.name} · {decoration.name}",
-            description=None,
-        )
-
-# TODO: 로그인 로직 완성되면 추가 수정
-class ItemClaimView(APIView):
-    permission_classes = [IsAuthenticated]  # 로그인 필수
-
-    def post(self, request, pk):
+        symbol_reason = serializer.validated_data.get("symbol_reason")
         try:
-            item = Item.objects.get(pk=pk)
-        except Item.DoesNotExist:
-            return Response({"detail": "노리개를 찾을 수 없습니다."}, status=404)
-
-        if item.user is not None:
-            return Response({"detail": "이미 다른 계정에 연결된 노리개입니다."}, status=400)
-
-        item.user = request.user
-        item.save()
-        return Response(ItemSerializer(item).data)
+            description = ai_recommend.summarize_description(symbol_reason)
+        except Exception:
+            description = None  # 요약 실패해도 저장 자체는 막지 않음 (제목/본문은 이미 검증 통과함)
+        serializer.save(
+            user=self.request.user,
+            description=description,
+        )
 
 # =========== MAKE_01 ==============
 # ------------ AI 연동 ------------

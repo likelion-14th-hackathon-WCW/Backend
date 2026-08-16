@@ -26,6 +26,7 @@ def _mock_recommend(keyword: str):
         "knot": 1,
         "decoration": 7,
         "reason": f"(Mock) '{keyword}'에 어울리는 조합으로 국화 매듭과 골드 타이거 장식을 추천합니다.",
+        "suggested_title": "(Mock) 골든 국화 앙상블",
     }
 
 # 실제 OpenAI 호출 로직
@@ -58,8 +59,10 @@ def _call_openai_recommend(keyword: str, exclude_combinations):
 {options_text}
 {exclude_text}
 
+또한 이 조합에 어울리는 짧고 감성적인 제목도 하나 지어주세요 (예: "미드나잇 앰버 앙상블"처럼 15자 내외).
+
 반드시 아래 JSON 형식으로만 답변하세요. 목록에 없는 id는 절대로 사용하지 마세요.
-{{"knot": <매듭 id>, "decoration": <장식 id>, "reason": "<두 조합이 왜 이 소망과 어울리는지 2~3문장 설명>"}}
+{{"knot": <매듭 id>, "decoration": <장식 id>, "reason": "<두 조합이 왜 이 소망과 어울리는지 2~3문장 설명>, "suggested_title": "<조합 제목>""}}
 """
 
     response = client.chat.completions.create(
@@ -79,7 +82,6 @@ def _call_openai_recommend(keyword: str, exclude_combinations):
 
     return result
 
-# TODO: MCM 상품 추천용 DB 만들어야 함
 def recommend_products(item_id: int):
     """MAKE_02(커스텀 에디터) - 완성된 노리개 보고 어울리는 MCM 상품 추천."""
     if settings.USE_MOCK_AI:
@@ -130,3 +132,19 @@ def _call_openai_recommend_products(item_id: int):
     valid_ids = {p.id for p in products}
     filtered = [pid for pid in result.get("product_ids", []) if pid in valid_ids]
     return filtered[:3]  # AI가 지시를 안 지켜도 최대 3개로 강제
+
+# AI 추천 의미 설명 요약
+def summarize_description(symbol_reason: str):
+    """저장 시점에 symbol_reason(전통 의미 설명)을 짧게 요약해서 카드용 description으로 만듦"""
+    if not symbol_reason:
+        return None
+    if settings.USE_MOCK_AI:
+        return f"(Mock 요약) {symbol_reason[:30]}"
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{
+            "role": "user",
+            "content": f"다음 설명을 한 문장으로, 카드에 어울리게 짧고 감성적으로 요약해줘 (30자 내외) 추가로 이모지는 넣지 말아줘: {symbol_reason}",
+        }],
+    )
+    return response.choices[0].message.content.strip()

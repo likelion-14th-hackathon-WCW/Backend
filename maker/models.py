@@ -37,7 +37,8 @@ class Component(models.Model):
     image_url = models.CharField(max_length=255, null=True, blank=True, help_text="레이어 조립용 에셋 경로")
     feature_image_url = models.CharField(max_length=255, null=True, blank=True,
                                          help_text="시즌 상징 섹션 등 프로모션용 별도 이미지 (시즌 한정 항목에만 값 채워짐)")
-
+    feature_description = models.CharField(max_length=255, null=True, blank=True,
+                                           help_text="시즌 상징 갤러리용 설명 문구 - meaning(전통 의미)과 별개, 마케팅 톤. 시즌 한정 항목에만 값 채워짐")
 
     class Meta:
         db_table = 'component'
@@ -81,8 +82,8 @@ class Product(models.Model):
 
     name = models.CharField(max_length=100) # 상품명
     price = models.IntegerField(help_text="가격(원)") # 상품 가격
-    image_url = models.CharField(max_length=255, null=True, blank=True) # 상품 이미지 경로
-    mcm_link = models.CharField(max_length=255, null=True, blank=True) # MCM 제품 이미지 경로
+    image_url = models.CharField(max_length=500, null=True, blank=True) # 상품 이미지 경로
+    mcm_link = models.CharField(max_length=500, null=True, blank=True) # MCM 제품 이미지 경로
     # TODO: 관심상품/즐겨찾기는 팀원 User 모델 나온 뒤 별도 M:N 테이블(FavoriteProduct)로 추가 예정
 
     class Meta:

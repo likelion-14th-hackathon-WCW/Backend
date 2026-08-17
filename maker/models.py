@@ -20,7 +20,7 @@ class Component(models.Model):
     class ComponentType(models.TextChoices):
         KNOT = "knot", "매듭"
         TASSEL = "tassel", "술"
-        DECORATION = "decoration", " 장식"
+        DECORATION = "decoration", "장식"
 
     type = models.CharField(max_length=20, choices=ComponentType.choices) # 매듭/술/장식 중 하나
     name = models.CharField(max_length=50) # 구성요소 이름
@@ -34,7 +34,9 @@ class Component(models.Model):
         related_name="components",
         help_text="시즌 한정이면 연결, 상시 판매면 NULL",
     )
-    # TODO: 프론트 답변 오면 추가 예정: image_url = models.CharField(max_length=255, null=True, blank=True)
+    image_url = models.CharField(max_length=255, null=True, blank=True, help_text="레이어 조립용 에셋 경로")
+    feature_image_url = models.CharField(max_length=255, null=True, blank=True,
+                                         help_text="시즌 상징 섹션 등 프로모션용 별도 이미지 (시즌 한정 항목에만 값 채워짐)")
 
 
     class Meta:
@@ -47,14 +49,13 @@ class Component(models.Model):
 class Item(models.Model):
     # 사용자가 완성한 노리개
 
-    # TODO: 추후 ERD 확인 한 번 더
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         null=True,
         blank=True,
         related_name="items",
-        help_text="팀원의 User 모델 참조. 비로그인 임시저장 시 NULL",
+        help_text="디자인 저장은 로그인 필수라 항상 채워짐. null 허용은 과거 설계 흔적, 마이그레이션 부담 피하려 스키마는 그대로 둠",
     )
     wish_keyword = models.CharField(max_length=100, help_text="입력한 바람/키워드") # 입력한 바람/키워드
     symbol_reason = models.TextField(null=True, blank=True, help_text="AI가 준 상징 추천 이유 (최초 생성 후 고정, 재갱신 안 됨)") # 상징 추천 이유 (AI)
@@ -64,6 +65,8 @@ class Item(models.Model):
     color = models.CharField(max_length=20, null=True, blank=True, help_text="사용자가 고른 전체 색상") # 선택한 색상
     image_url = models.CharField(max_length=255, null=True, blank=True, help_text="저장된 이미지 경로") # 저장 이미지 경로
     created_at = models.DateTimeField(auto_now_add=True) # 생성 일시
+    title = models.CharField(max_length=100, null=True, blank=True, help_text="조합 제목")
+    description = models.CharField(max_length=255, null=True, blank=True, help_text="조합 설명 문구") 
 
     class Meta:
         db_table = "item"

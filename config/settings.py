@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-@%*@5i8h&^gw66lh=r%&gpn5m)qu^lt@-!1bx9sp!di1%@9(g9"
+SECRET_KEY = config('SECRET_KEY')
+
+# OPENAI_API_KEY WARNING: keep the secret key used in production secret!
+OPENAI_API_KEY = config("OPENAI_API_KEY", default="")
+
+USE_MOCK_AI = config("USE_MOCK_AI", default=True, cast=bool)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -128,3 +134,14 @@ MAILERS = {
         "BACKEND": "django.core.mail.backends.console.EmailBackend",
     },
 }
+
+# 유빈 - 임시 추가해서 테스트
+# REST_FRAMEWORK = {
+#     "DEFAULT_AUTHENTICATION_CLASSES": [
+#         "rest_framework_simplejwt.authentication.JWTAuthentication",
+#         "rest_framework.authentication.BasicAuthentication",  # 로컬 테스트용
+#         "rest_framework.authentication.SessionAuthentication",
+#     ],
+#     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+#     "PAGE_SIZE": 20,
+# }

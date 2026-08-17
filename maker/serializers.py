@@ -20,7 +20,7 @@ class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
         fields = "__all__"
-        read_only_fields = ("created_at",) # created_at 설정 추가
+        read_only_fields = ("created_at", "description")
 
     # type 검증 로직
     def validate(self, data):
@@ -31,6 +31,15 @@ class ItemSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {field: f"'{field}' 자리에는 type='{expected_type}'인 컴포넌트만 넣을 수 있습니다."}
                 )
+
+        # 완성 조건: 소망/AI추천/색상까지 다 채워져야 디자인 저장 가능
+        if not data.get("symbol_reason"):
+            raise serializers.ValidationError({"symbol_reason": "AI 추천을 받아야 저장할 수 있습니다."})
+        if not data.get("color"):
+            raise serializers.ValidationError({"color": "색상을 선택해야 저장할 수 있습니다."})
+        if not data.get("title"):
+            raise serializers.ValidationError({"title": "제목을 입력해야 저장할 수 있습니다."})
+
         return data
 
 

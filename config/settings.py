@@ -47,8 +47,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "rest_framework_simplejwt",
     "corsheaders",
     "maker",
+    "accounts",
 ]
 
 MIDDLEWARE = [
@@ -105,6 +107,7 @@ DATABASES = {
     }
 }
 
+AUTH_USER_MODEL = "accounts.User"
 
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
@@ -152,13 +155,19 @@ MAILERS = {
     },
 }
 
-# ✅ 유빈 - 임시 추가해서 테스트
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": [
+    "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-        "rest_framework.authentication.BasicAuthentication",  # 로컬 테스트용
-        "rest_framework.authentication.SessionAuthentication",
-    ],
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 20,
+    ),
 }
+
+# 유빈 - 임시 추가해서 테스트
+# REST_FRAMEWORK = {
+#     "DEFAULT_AUTHENTICATION_CLASSES": [
+#         "rest_framework_simplejwt.authentication.JWTAuthentication",
+#         "rest_framework.authentication.BasicAuthentication",  # 로컬 테스트용
+#         "rest_framework.authentication.SessionAuthentication",
+#     ],
+#     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+#     "PAGE_SIZE": 20,
+# }

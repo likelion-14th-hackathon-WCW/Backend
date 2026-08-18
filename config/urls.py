@@ -22,4 +22,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("maker.urls")), # 임시
     path("auth/", include("accounts.urls")),
+    path("api/reservations/", include("accounts.reservation_urls")),
 ]

@@ -9,6 +9,42 @@
     }
   },
   {
+    "model": "maker.season",
+    "pk": 2,
+    "fields": {
+      "name": "2026 여름",
+      "start_date": "2026-06-01",
+      "end_date": "2026-08-31"
+    }
+  },
+  {
+    "model": "maker.season",
+    "pk": 3,
+    "fields": {
+      "name": "2026 가을",
+      "start_date": "2026-09-01",
+      "end_date": "2026-11-30"
+    }
+  },
+  {
+    "model": "maker.season",
+    "pk": 4,
+    "fields": {
+      "name": "2026 겨울",
+      "start_date": "2026-12-01",
+      "end_date": "2027-02-28"
+    }
+  },
+  {
+    "model": "maker.season",
+    "pk": 5,
+    "fields": {
+      "name": "2027 봄",
+      "start_date": "2027-03-01",
+      "end_date": "2027-05-31"
+    }
+  },
+  {
     "model": "maker.component",
     "pk": 1,
     "fields": {
@@ -18,7 +54,8 @@
       "meaning": "국화는 서리를 이겨내고 피어나는 모습에서 장수와 인내, 굳은 절개를 상징합니다.",
       "season": null,
       "image_url": "knot_chrysanthemum",
-      "feature_image_url": null
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
   {
@@ -31,7 +68,8 @@
       "meaning": "진흙 속에서도 맑게 피어나는 연꽃은 순수함과 깨달음, 새로운 시작을 상징합니다.",
       "season": 1,
       "image_url": "knot_lotus",
-      "feature_image_url": "feature_lotus"
+      "feature_image_url": "feature_lotus",
+      "feature_description": "순수함과 깨달음을 상징하며, 봄 컬렉션을 위해 독점적으로 공급되었습니다."
     }
   },
   {
@@ -42,9 +80,10 @@
       "name": "매화 매듭",
       "color": "#EDEDED",
       "meaning": "매서운 겨울을 견디고 가장 먼저 피어나는 매화는 인내와 절개, 새봄의 전령을 상징합니다.",
-      "season": null,
+      "season": 1,
       "image_url": "knot_plum_blossom",
-      "feature_image_url": null
+      "feature_image_url": "feature_plum_blossom",
+      "feature_description": "인내와 절개, 새봄의 전령을 상징하며, 봄 컬렉션을 위해 독점적으로 공급되었습니다."
     }
   },
   {
@@ -57,7 +96,8 @@
       "meaning": "예로부터 '꽃 중의 왕'이라 불린 모란은 부귀와 영화를 상징합니다.",
       "season": null,
       "image_url": "knot_peony",
-      "feature_image_url": null
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
   {
@@ -70,7 +110,8 @@
       "meaning": "씨앗이 가득한 석류는 다산과 번영, 풍요로운 앞날을 상징합니다.",
       "season": null,
       "image_url": "knot_pomegranate",
-      "feature_image_url": null
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
   {
@@ -83,7 +124,8 @@
       "meaning": "자유롭게 날아오르는 나비는 사랑과 행복한 변화, 재회를 상징합니다.",
       "season": null,
       "image_url": "knot_butterfly",
-      "feature_image_url": null
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
   {
@@ -96,7 +138,8 @@
       "meaning": "호랑이는 나쁜 기운을 물리치고 강력한 보호를 기원하는 전통적인 수호의 상징입니다.",
       "season": null,
       "image_url": "decoration_gold_tiger",
-      "feature_image_url": null
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
   {
@@ -109,7 +152,8 @@
       "meaning": "맑고 단단한 옥은 고귀함과 변치 않는 품격을 상징합니다.",
       "season": null,
       "image_url": "decoration_jade_pendant",
-      "feature_image_url": null
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
   {
@@ -122,7 +166,8 @@
       "meaning": "예로부터 박쥐는 발음이 비슷한 '복(福)'과 연결되어 복과 건강을 상징합니다.",
       "season": null,
       "image_url": "decoration_bat",
-      "feature_image_url": null
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
   {
@@ -135,7 +180,8 @@
       "meaning": "토끼는 지혜와 다산, 풍요로운 살림을 상징하는 동물로 여겨져 왔습니다.",
       "season": null,
       "image_url": "decoration_rabbit",
-      "feature_image_url": null
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
   {
@@ -148,7 +194,8 @@
       "meaning": "고고하게 하늘을 나는 학은 장수와 고귀함, 신선의 세계를 상징합니다.",
       "season": null,
       "image_url": "decoration_crane",
-      "feature_image_url": null
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
   {
@@ -161,7 +208,8 @@
       "meaning": "맑고 청량한 비취색은 순수함과 재생, 봄의 생명력을 상징합니다.",
       "season": 1,
       "image_url": "decoration_emerald",
-      "feature_image_url": "feature_emerald"
+      "feature_image_url": "feature_emerald",
+      "feature_description": "순수함과 재생을 상징하며, 봄 컬렉션을 위해 독점적으로 공급되었습니다."
     }
   },
   {
@@ -169,12 +217,13 @@
     "pk": 13,
     "fields": {
       "type": "tassel",
-      "name": "흑색 술",
-      "color": "#1A1A1A",
+      "name": "남색 술",
+      "color": "#17216E",
       "meaning": null,
       "season": null,
-      "image_url": "tassel_black",
-      "feature_image_url": null
+      "image_url": "tassel_navy",
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
   {
@@ -182,12 +231,13 @@
     "pk": 14,
     "fields": {
       "type": "tassel",
-      "name": "진회색 술",
-      "color": "#4D4D4D",
+      "name": "핑크 술",
+      "color": "#FEB9E3",
       "meaning": null,
       "season": null,
-      "image_url": "tassel_dark_gray",
-      "feature_image_url": null
+      "image_url": "tassel_pink",
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
   {
@@ -195,12 +245,13 @@
     "pk": 15,
     "fields": {
       "type": "tassel",
-      "name": "회색 술",
-      "color": "#808080",
+      "name": "골드 술",
+      "color": "#FFC95F",
       "meaning": null,
       "season": null,
-      "image_url": "tassel_gray",
-      "feature_image_url": null
+      "image_url": "tassel_gold",
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
   {
@@ -208,12 +259,13 @@
     "pk": 16,
     "fields": {
       "type": "tassel",
-      "name": "연회색 술",
-      "color": "#B3B3B3",
+      "name": "그린 술",
+      "color": "#369F39",
       "meaning": null,
       "season": null,
-      "image_url": "tassel_light_gray",
-      "feature_image_url": null
+      "image_url": "tassel_green",
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
   {
@@ -221,25 +273,13 @@
     "pk": 17,
     "fields": {
       "type": "tassel",
-      "name": "아이보리 술",
-      "color": "#F5F0E6",
+      "name": "코랄 술",
+      "color": "#F37E7E",
       "meaning": null,
       "season": 1,
-      "image_url": "tassel_ivory",
-      "feature_image_url": "feature_ivory"
-    }
-  },
-  {
-    "model": "maker.component",
-    "pk": 18,
-    "fields": {
-      "type": "tassel",
-      "name": "골드 술",
-      "color": "#D4AF37",
-      "meaning": null,
-      "season": 1,
-      "image_url": "tassel_gold",
-      "feature_image_url": "feature_gold"
+      "image_url": "tassel_coral",
+      "feature_image_url": "feature_coral",
+      "feature_description": "화사한 코랄빛으로 봄의 생동감을 더하며, 이번 시즌에만 만나볼 수 있습니다."
     }
   }
 ]

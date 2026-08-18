@@ -67,6 +67,7 @@ class RankingView(APIView):
             )
             result.append({
                 "rank": i + 1,
+                "id": sample.id if sample else None,
                 "knot_id": row["knot_id"],
                 "knot_name": names.get(row["knot_id"]),
                 "knot_image_url": images.get(row["knot_id"]),
@@ -79,7 +80,7 @@ class RankingView(APIView):
                 "count": row["count"],
                 "title": sample.title if sample else None,
                 "description": sample.description if sample else None,
-                "creator": sample.user.username if sample and sample.user else None,
+                "creator": sample.user.nickname if sample and sample.user else None,
             })
         return Response(result)
 

@@ -149,17 +149,29 @@ class Reservation(models.Model):
 
 # 위시리스트
 class Wishlist(models.Model):
-    # 관심 등록 상품
+    # 관심 등록 노리개 조합 (매듭+장식+술)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="wishlists",
     )  # 회원 참조
-    product = models.ForeignKey(
-        "maker.Product",
+
+    knot = models.ForeignKey(
+        "maker.Component",
         on_delete=models.CASCADE,
-        related_name="wishlists",
-    )  # 상품 참조
+        related_name="knot_wishlists",
+    )  # 매듭 참조
+    tassel = models.ForeignKey(
+        "maker.Component",
+        on_delete=models.CASCADE,
+        related_name="tassel_wishlists",
+    )  # 술 참조
+    decoration = models.ForeignKey(
+        "maker.Component",
+        on_delete=models.CASCADE,
+        related_name="decoration_wishlists",
+    )  # 장식 참조
+
     created_at = models.DateTimeField(auto_now_add=True)  # 등록 일시
 
     class Meta:
@@ -167,13 +179,13 @@ class Wishlist(models.Model):
         constraints = [
             # 같은 상품 중복 관심등록 방지
             models.UniqueConstraint(
-                fields=["user", "product"],
+                fields=["user", "knot", "tassel", "decoration"],
                 name="unique_user_product_wish",
             )
         ]
 
     def __str__(self):
-        return f"{self.user.nickname} ♡ {self.product.name}"
+        return f"{self.user.nickname} ♡ {self.knot.name}+{self.tassel.name}+{self.decoration.name}"
 
 
 # 소유 등록

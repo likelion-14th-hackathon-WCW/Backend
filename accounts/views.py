@@ -303,3 +303,159 @@ class WithdrawView(APIView):
         user.save(update_fields=["is_active"])
 
         return Response({"detail": "탈퇴가 완료되었습니다."}, status=status.HTTP_200_OK)
+
+
+# ─────────────────────────────────────────────
+# MYPAGE_01(3) - 예약 내역 조회/변경/취소
+# ─────────────────────────────────────────────
+from .serializers import (
+    ReservationUpdateSerializer,
+    ItemListSerializer,
+    OwnershipSerializer,
+    OwnershipCreateSerializer,
+    WishlistSerializer,
+    WishlistCreateSerializer,
+)
+
+
+class MyReservationListView(ListAPIView):
+    """MYPAGE_01(3.1) - 내 예약 내역. 지난 예약 포함 전체"""
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = ReservationSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        return (
+            Reservation.objects.filter(user=self.request.user)
+            .select_related("store")
+            .order_by("-reserved_at")
+        )
+
+
+class ReservationDetailView(APIView):
+    """MYPAGE_01(3.2) - 예약 변경(PATCH) / 취소(DELETE)"""
+
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk, user):
+        return Reservation.objects.filter(pk=pk, user=user).first()
+
+    def patch(self, request, pk):
+        reservation = self.get_object(pk, request.user)
+        if reservation is None:
+            return Response({"detail": "예약을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ReservationUpdateSerializer(reservation, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        try:
+            reservation = serializer.save(status=Reservation.Status.CHANGED)
+        except IntegrityError:
+            return Response(
+                {"detail": "이미 예약된 시간입니다."},
+                status=status.HTTP_409_CONFLICT,
+            )
+        return Response(ReservationSerializer(reservation).data, status=status.HTTP_200_OK)
+
+    def delete(self, request, pk):
+        reservation = self.get_object(pk, request.user)
+        if reservation is None:
+            return Response({"detail": "예약을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+        # 취소는 상태 변경(소프트). 명세: 취소 시 해당 예약 삭제 → 실제 삭제 원하면 reservation.delete()
+        reservation.status = Reservation.Status.CANCELED
+        reservation.save(update_fields=["status"])
+        return Response({"detail": "예약이 취소되었습니다."}, status=status.HTTP_200_OK)
+
+
+# ─────────────────────────────────────────────
+# MYPAGE_01(4) - 저장 작품 / 타임라인
+# ─────────────────────────────────────────────
+from maker.models import Item
+
+
+class MyItemListView(ListAPIView):
+    """MYPAGE_01(4.1, 4.2) - 저장한 노리개 목록. 최신순(타임라인)"""
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = ItemListSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        return (
+            Item.objects.filter(user=self.request.user)
+            .select_related("knot", "tassel", "decoration")
+            .order_by("-created_at")
+        )
+
+
+class MyItemDetailView(RetrieveAPIView):
+    """MYPAGE_01(4.1) - 저장 작품 상세(노리개 디자인)"""
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = ItemListSerializer
+
+    def get_queryset(self):
+        return Item.objects.filter(user=self.request.user).select_related(
+            "knot", "tassel", "decoration"
+        )
+
+
+# ─────────────────────────────────────────────
+# MYPAGE_01(5) - 소유 등록
+# ─────────────────────────────────────────────
+from .models import Ownership
+
+
+class OwnershipListCreateView(APIView):
+    """MYPAGE_01(5.1) - 소유 목록 조회 / 소유 등록"""
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        qs = Ownership.objects.filter(user=request.user).select_related("product").order_by("-created_at")
+        return Response(OwnershipSerializer(qs, many=True).data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = OwnershipCreateSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        ownership = serializer.save()
+        return Response(OwnershipSerializer(ownership).data, status=status.HTTP_201_CREATED)
+
+
+# ─────────────────────────────────────────────
+# MYPAGE_01(6) - 관심상품(위시리스트)
+# ─────────────────────────────────────────────
+from .models import Wishlist
+
+
+class WishlistListCreateView(APIView):
+    """MYPAGE_01(6) - 관심 조합 조회 / 등록"""
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        qs = (
+            Wishlist.objects.filter(user=request.user)
+            .select_related("knot", "tassel", "decoration")
+            .order_by("-created_at")
+        )
+        return Response(WishlistSerializer(qs, many=True).data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = WishlistCreateSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        wishlist = serializer.save()
+        return Response(WishlistSerializer(wishlist).data, status=status.HTTP_201_CREATED)
+
+
+class WishlistDeleteView(APIView):
+    """MYPAGE_01(6) - 관심 조합 삭제"""
+
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        wishlist = Wishlist.objects.filter(pk=pk, user=request.user).first()
+        if wishlist is None:
+            return Response({"detail": "관심 항목을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+        wishlist.delete()
+        return Response({"detail": "삭제되었습니다."}, status=status.HTTP_200_OK)

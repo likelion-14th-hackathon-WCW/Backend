@@ -173,3 +173,123 @@ class WithdrawSerializer(serializers.Serializer):
             if not attrs.get("password") or not user.check_password(attrs["password"]):
                 raise serializers.ValidationError({"password": "비밀번호가 일치하지 않습니다."})
         return attrs
+
+# ─────────────────────────────────────────────
+# MYPAGE_01(3) - 예약 내역
+# ─────────────────────────────────────────────
+class ReservationUpdateSerializer(serializers.ModelSerializer):
+    """MYPAGE_01(3.2) - 예약 변경. 날짜/시간 수정"""
+
+    class Meta:
+        model = Reservation
+        fields = ["reserved_at"]
+
+    def validate_reserved_at(self, value):
+        if value < timezone.now():
+            raise serializers.ValidationError("지난 시간으로는 변경할 수 없습니다.")
+        return value
+
+
+# ─────────────────────────────────────────────
+# MYPAGE_01(4) - 저장 작품 / 노리개 디자인
+# ─────────────────────────────────────────────
+from maker.models import Item, Product
+
+
+class ItemListSerializer(serializers.ModelSerializer):
+    """MYPAGE_01(4.1) - 저장 작품 목록/상세. 구성 조합 포함"""
+
+    knot_name = serializers.CharField(source="knot.name", read_only=True)
+    tassel_name = serializers.CharField(source="tassel.name", read_only=True)
+    decoration_name = serializers.CharField(source="decoration.name", read_only=True)
+
+    class Meta:
+        model = Item
+        fields = [
+            "id", "title", "description", "wish_keyword", "symbol_reason",
+            "knot", "knot_name", "tassel", "tassel_name",
+            "decoration", "decoration_name",
+            "color", "image_url", "created_at",
+        ]
+
+
+# ─────────────────────────────────────────────
+# MYPAGE_01(5) - 소유 등록
+# ─────────────────────────────────────────────
+from .models import Ownership
+
+
+class OwnershipSerializer(serializers.ModelSerializer):
+    """MYPAGE_01(5.1) - 소유 등록 응답용(소유권 증명서)"""
+
+    product_name = serializers.CharField(source="product.name", read_only=True)
+
+    class Meta:
+        model = Ownership
+        fields = [
+            "id", "product", "product_name", "serial_no",
+            "has_production_right", "created_at",
+        ]
+
+
+class OwnershipCreateSerializer(serializers.ModelSerializer):
+    """MYPAGE_01(5.1) - 소유 등록. 시리얼/주문번호로 등록"""
+
+    class Meta:
+        model = Ownership
+        fields = ["product", "serial_no"]
+
+    def validate_serial_no(self, value):
+        # 이미 등록된 시리얼이면 불가 (unique지만 친절한 메시지)
+        if Ownership.objects.filter(serial_no=value).exists():
+            raise serializers.ValidationError("이미 등록된 시리얼/주문번호입니다.")
+        return value
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        return Ownership.objects.create(user=user, **validated_data)
+
+
+# ─────────────────────────────────────────────
+# MYPAGE_01(6) - 관심상품(위시리스트)
+# ─────────────────────────────────────────────
+from .models import Wishlist
+
+
+class WishlistSerializer(serializers.ModelSerializer):
+    """MYPAGE_01(6) - 관심 등록 노리개 조합 조회"""
+
+    knot_name = serializers.CharField(source="knot.name", read_only=True)
+    tassel_name = serializers.CharField(source="tassel.name", read_only=True)
+    decoration_name = serializers.CharField(source="decoration.name", read_only=True)
+
+    class Meta:
+        model = Wishlist
+        fields = [
+            "id", "knot", "knot_name", "tassel", "tassel_name",
+            "decoration", "decoration_name", "created_at",
+        ]
+
+
+class WishlistCreateSerializer(serializers.ModelSerializer):
+    """MYPAGE_01(6) - 관심 조합 등록"""
+
+    class Meta:
+        model = Wishlist
+        fields = ["knot", "tassel", "decoration"]
+
+    def validate(self, attrs):
+        user = self.context["request"].user
+        # 같은 조합 중복 등록 방지
+        if Wishlist.objects.filter(
+                user=user,
+                knot=attrs["knot"],
+                tassel=attrs["tassel"],
+                decoration=attrs["decoration"],
+        ).exists():
+            raise serializers.ValidationError("이미 관심 등록한 조합입니다.")
+        return attrs
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        return Wishlist.objects.create(user=user, **validated_data)

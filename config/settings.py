@@ -161,8 +161,6 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.BasicAuthentication",  # 로컬 테스트용
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 20,
 }
 
 # 유빈 - 테스트를 위한 인증 토큰 기간 설정

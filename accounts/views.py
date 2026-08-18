@@ -160,3 +160,82 @@ class SocialLoginView(APIView):
             nickname = f"{base}_{idx}"
             idx += 1
         return nickname
+
+# ─────────────────────────────────────────────
+# RESERVATION_01 - 매장 방문 연계
+# ─────────────────────────────────────────────
+from django.db import IntegrityError
+from rest_framework.generics import ListAPIView
+
+from .models import Store, Reservation
+from .serializers import (
+    StoreSerializer,
+    ReservationSerializer,
+    ReservationCreateSerializer,
+)
+
+
+class StoreListView(ListAPIView):
+    """RESERVATION_01(1) - 운영 중인 매장 목록"""
+
+    permission_classes = [AllowAny]
+    serializer_class = StoreSerializer
+    pagination_class = None  # 매장 수가 적어 전체 반환
+
+    def get_queryset(self):
+        return Store.objects.filter(is_active=True)
+
+
+class BookedTimeListView(APIView):
+    """
+    RESERVATION_01(2) - 날짜 선택 지원.
+    특정 매장·날짜에 이미 예약된 시간 목록을 반환 → 프론트가 마감 처리
+    GET /api/reservations/booked/?store=1&date=2026-08-20
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        store_id = request.query_params.get("store")
+        date = request.query_params.get("date")
+        if not store_id or not date:
+            return Response(
+                {"detail": "store와 date는 필수입니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        booked = (
+            Reservation.objects.filter(
+                store_id=store_id,
+                reserved_at__date=date,
+                status=Reservation.Status.CONFIRMED,
+            )
+            .values_list("reserved_at", flat=True)
+        )
+        # 시각만 추출해 리스트로
+        times = [dt.strftime("%H:%M") for dt in booked]
+        return Response({"booked_times": times}, status=status.HTTP_200_OK)
+
+
+class ReservationCreateView(APIView):
+    """RESERVATION_01(3) - 예약 완료. 로그인/비로그인 모두 가능"""
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = ReservationCreateSerializer(
+            data=request.data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        try:
+            reservation = serializer.save()
+        except IntegrityError:
+            # 같은 매장·같은 시간 중복 예약 (unique_store_time)
+            return Response(
+                {"detail": "이미 예약된 시간입니다. 다른 시간을 선택해주세요."},
+                status=status.HTTP_409_CONFLICT,
+            )
+        return Response(
+            ReservationSerializer(reservation).data,
+            status=status.HTTP_201_CREATED,
+        )

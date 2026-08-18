@@ -79,6 +79,8 @@ class Store(models.Model):
     # 방문 예약 가능한 오프라인 매장
     name = models.CharField(max_length=100)  # 매장명
     address = models.CharField(max_length=255)  # 주소
+    open_time = models.TimeField(null=True, blank=True, help_text="영업 시작 시각")
+    close_time = models.TimeField(null=True, blank=True, help_text="영업 종료 시각")
     is_active = models.BooleanField(
         default=True, help_text="false면 예약 목록에서 제외"
     )  # 운영 여부
@@ -88,7 +90,6 @@ class Store(models.Model):
 
     def __str__(self):
         return self.name
-
 
 # 예약
 class Reservation(models.Model):
@@ -219,3 +220,5 @@ class Ownership(models.Model):
 
     def __str__(self):
         return f"{self.serial_no} ({self.user.nickname})"
+
+

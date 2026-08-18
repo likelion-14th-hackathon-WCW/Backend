@@ -1,0 +1,47 @@
+[
+  {
+    "model": "accounts.store",
+    "pk": 1,
+    "fields": {
+      "name": "MCM 청담 하우스",
+      "address": "서울 강남구 압구정로 462",
+      "is_active": true
+    }
+  },
+  {
+    "model": "accounts.store",
+    "pk": 2,
+    "fields": {
+      "name": "MCM 성수 팝업스토어",
+      "address": "서울 성동구 연무장길 33",
+      "is_active": true
+    }
+  },
+  {
+    "model": "accounts.store",
+    "pk": 3,
+    "fields": {
+      "name": "MCM 명동 플래그십",
+      "address": "서울 중구 명동8길 27",
+      "is_active": true
+    }
+  },
+  {
+    "model": "accounts.store",
+    "pk": 4,
+    "fields": {
+      "name": "MCM 신세계 강남점",
+      "address": "서울 서초구 신반포로 176",
+      "is_active": true
+    }
+  },
+  {
+    "model": "accounts.store",
+    "pk": 5,
+    "fields": {
+      "name": "MCM 롯데 잠실점 (운영 종료)",
+      "address": "서울 송파구 올림픽로 300",
+      "is_active": false
+    }
+  }
+]

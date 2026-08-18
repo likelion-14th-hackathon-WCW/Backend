@@ -70,3 +70,76 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "email", "nickname", "provider", "created_at"]
+
+# ─────────────────────────────────────────────
+# RESERVATION_01 - 매장 방문 연계
+# ─────────────────────────────────────────────
+from django.utils import timezone
+from django.contrib.auth.hashers import make_password
+from .models import Store, Reservation
+
+
+class StoreSerializer(serializers.ModelSerializer):
+    """RESERVATION_01(1) - 매장 선택. 운영 중인 매장만 노출"""
+
+    class Meta:
+        model = Store
+        fields = ["id", "name", "address"]
+
+
+class ReservationSerializer(serializers.ModelSerializer):
+    """예약 응답용"""
+
+    store_name = serializers.CharField(source="store.name", read_only=True)
+    status = serializers.CharField(source="get_status_display", read_only=True)
+
+    class Meta:
+        model = Reservation
+        fields = ["id", "store", "store_name", "reserved_at", "status", "created_at"]
+
+
+class ReservationCreateSerializer(serializers.ModelSerializer):
+    """
+    RESERVATION_01(3) - 예약 완료.
+    로그인: user 자동 연결 / 비로그인: guest_id·guest_password 필수
+    """
+
+    guest_password = serializers.CharField(write_only=True, required=False)
+
+    class Meta:
+        model = Reservation
+        fields = ["store", "reserved_at", "guest_id", "guest_password"]
+
+    def validate_store(self, value):
+        # 운영 종료 매장은 예약 불가
+        if not value.is_active:
+            raise serializers.ValidationError("현재 예약할 수 없는 매장입니다.")
+        return value
+
+    def validate_reserved_at(self, value):
+        # 지난 시간 예약 불가
+        if value < timezone.now():
+            raise serializers.ValidationError("지난 시간은 예약할 수 없습니다.")
+        return value
+
+    def validate(self, attrs):
+        request = self.context["request"]
+        # 비로그인 예약이면 guest 정보 필수
+        if not request.user.is_authenticated:
+            if not attrs.get("guest_id") or not attrs.get("guest_password"):
+                raise serializers.ValidationError(
+                    "비로그인 예약은 아이디와 비밀번호가 필요합니다."
+                )
+        return attrs
+
+    def create(self, validated_data):
+        request = self.context["request"]
+        raw_password = validated_data.pop("guest_password", None)
+
+        if request.user.is_authenticated:
+            validated_data["user"] = request.user
+        else:
+            # 비회원 비밀번호는 해시 저장
+            validated_data["guest_password"] = make_password(raw_password)
+
+        return Reservation.objects.create(**validated_data)

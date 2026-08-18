@@ -106,11 +106,12 @@ class ProductDetailView(generics.RetrieveAPIView):
     queryset = Product.objects.all()
 
 # ------------ 노리개 저장 ------------
-class ItemCreateView(generics.CreateAPIView):
+class ItemListCreateView(generics.ListCreateAPIView):
     serializer_class = ItemSerializer
-    queryset = Item.objects.all()
-
     permission_classes = [IsAuthenticated]  # 로그인 필수 - 비로그인이면 401
+
+    def get_queryset(self):
+        return Item.objects.filter(user=self.request.user).order_by("-created_at")
 
     def perform_create(self, serializer):
         symbol_reason = serializer.validated_data.get("symbol_reason")
@@ -118,10 +119,12 @@ class ItemCreateView(generics.CreateAPIView):
             description = ai_recommend.summarize_description(symbol_reason)
         except Exception:
             description = None  # 요약 실패해도 저장 자체는 막지 않음 (제목/본문은 이미 검증 통과함)
-        serializer.save(
-            user=self.request.user,
-            description=description,
-        )
+        serializer.save(user=self.request.user, description=description)
+
+class ItemDetailView(generics.RetrieveAPIView):
+    """상세 조회 - 위시리스트에서 남의 디자인도 봐야 하므로 로그인 없이도 접근 가능해야 함"""
+    serializer_class = ItemSerializer
+    queryset = Item.objects.all()
 
 # =========== MAKE_01 ==============
 # ------------ AI 연동 ------------

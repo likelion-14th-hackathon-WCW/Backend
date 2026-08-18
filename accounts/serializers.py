@@ -143,3 +143,33 @@ class ReservationCreateSerializer(serializers.ModelSerializer):
             validated_data["guest_password"] = make_password(raw_password)
 
         return Reservation.objects.create(**validated_data)
+
+# ─────────────────────────────────────────────
+# MYPAGE_01 - 프로필/계정관리
+# ─────────────────────────────────────────────
+
+class NicknameUpdateSerializer(serializers.ModelSerializer):
+    """MYPAGE_01(2) - 닉네임 수정"""
+
+    class Meta:
+        model = User
+        fields = ["nickname"]
+
+    def validate_nickname(self, value):
+        if User.objects.filter(nickname=value).exclude(pk=self.instance.pk).exists():
+            raise serializers.ValidationError("이미 사용 중인 닉네임입니다.")
+        return value
+
+
+class WithdrawSerializer(serializers.Serializer):
+    """MYPAGE_01(8) - 회원탈퇴. 비밀번호 일치 시에만 탈퇴 가능"""
+
+    password = serializers.CharField(write_only=True, required=False)
+
+    def validate(self, attrs):
+        user = self.context["request"].user
+        # 소셜 로그인 유저는 비번이 없으니(unusable password) 검증 스킵
+        if user.has_usable_password():
+            if not attrs.get("password") or not user.check_password(attrs["password"]):
+                raise serializers.ValidationError({"password": "비밀번호가 일치하지 않습니다."})
+        return attrs

@@ -239,3 +239,67 @@ class ReservationCreateView(APIView):
             ReservationSerializer(reservation).data,
             status=status.HTTP_201_CREATED,
         )
+
+# ─────────────────────────────────────────────
+# MYPAGE_01 - 프로필/계정관리
+# ─────────────────────────────────────────────
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import RetrieveAPIView, UpdateAPIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
+
+from .serializers import NicknameUpdateSerializer, WithdrawSerializer
+
+
+class ProfileView(RetrieveAPIView):
+    """MYPAGE_01(1) - 프로필 조회"""
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
+
+    def get_object(self):
+        return self.request.user
+
+
+class NicknameUpdateView(UpdateAPIView):
+    """MYPAGE_01(2) - 닉네임 수정"""
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = NicknameUpdateSerializer
+    http_method_names = ["patch"]
+
+    def get_object(self):
+        return self.request.user
+
+
+class LogoutView(APIView):
+    """MYPAGE_01(7) - 로그아웃. refresh token 블랙리스트 처리"""
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        refresh_token = request.data.get("refresh")
+        if not refresh_token:
+            return Response({"detail": "refresh 토큰이 필요합니다."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        except TokenError:
+            return Response({"detail": "유효하지 않은 토큰입니다."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_205_RESET_CONTENT)
+
+
+class WithdrawView(APIView):
+    """MYPAGE_01(8) - 회원탈퇴. is_active=False 처리(소프트 삭제)"""
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = WithdrawSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+
+        user = request.user
+        user.is_active = False
+        user.save(update_fields=["is_active"])
+
+        return Response({"detail": "탈퇴가 완료되었습니다."}, status=status.HTTP_200_OK)

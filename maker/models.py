@@ -61,8 +61,15 @@ class Item(models.Model):
     wish_keyword = models.CharField(max_length=100, help_text="입력한 바람/키워드") # 입력한 바람/키워드
     symbol_reason = models.TextField(null=True, blank=True, help_text="AI가 준 상징 추천 이유 (최초 생성 후 고정, 재갱신 안 됨)") # 상징 추천 이유 (AI)
     knot = models.ForeignKey(Component, on_delete=models.PROTECT, related_name="knot_items") # 매듭 참조
-    tassel = models.ForeignKey(Component, on_delete=models.PROTECT, related_name="tassel_items") # 술 참조
+
+    class TasselCount(models.IntegerChoices):
+        ONE = 1, "1개"
+        TWO = 2, "2개"
+        THREE = 3, "3개"
+
     decoration = models.ForeignKey(Component, on_delete=models.PROTECT, related_name="decoration_items") # 장식 참조
+    tassel_count = models.IntegerField(choices=TasselCount.choices, help_text="술 개수 (1~3개)")
+
     color = models.CharField(max_length=20, null=True, blank=True, help_text="사용자가 고른 전체 색상") # 선택한 색상
     image_url = models.CharField(max_length=255, null=True, blank=True, help_text="저장된 이미지 경로") # 저장 이미지 경로
     created_at = models.DateTimeField(auto_now_add=True) # 생성 일시

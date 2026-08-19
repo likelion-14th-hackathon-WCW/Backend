@@ -5,6 +5,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from .serializers import SignupSerializer, UserSerializer
 
@@ -57,11 +58,7 @@ class LoginView(APIView):
 
 
 class SocialLoginView(APIView):
-    """
-    LOGIN_01 - 소셜 로그인 (카카오/네이버)
-    프론트에서 받은 access_token을 검증해 로그인/자동가입.
-    URL: /auth/social/<provider>/   body: { "access_token": "..." }
-    """
+
 
     permission_classes = [AllowAny]
 
@@ -143,23 +140,14 @@ class SocialLoginView(APIView):
         if user:
             return user, False
 
-        base = profile.get("nickname") or f"{provider}_user"
-        nickname = self._unique_nickname(base)
+        # 소셜 유저는 name/phone/nickname 모두 빈칸 → 나중에 프로필에서 설정
         user = User.objects.create_user(
             email=profile.get("email") or f"{profile['social_id']}@{provider}.social",
-            nickname=nickname,
             provider=provider,
             social_id=profile["social_id"],
-            password=None,  # 소셜 유저는 unusable password
+            password=None,
         )
         return user, True
-
-    def _unique_nickname(self, base):
-        nickname, idx = base, 1
-        while User.objects.filter(nickname=nickname).exists():
-            nickname = f"{base}_{idx}"
-            idx += 1
-        return nickname
 
 # ─────────────────────────────────────────────
 # RESERVATION_01 - 매장 방문 연계
@@ -247,8 +235,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import RetrieveAPIView, UpdateAPIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
-
-from .serializers import NicknameUpdateSerializer, WithdrawSerializer
+from .serializers import ProfileUpdateSerializer, WithdrawSerializer
 
 
 class ProfileView(RetrieveAPIView):
@@ -265,7 +252,8 @@ class NicknameUpdateView(UpdateAPIView):
     """MYPAGE_01(2) - 닉네임 수정"""
 
     permission_classes = [IsAuthenticated]
-    serializer_class = NicknameUpdateSerializer
+    serializer_class = ProfileUpdateSerializer
+    parser_classes = [MultiPartParser, FormParser]
     http_method_names = ["patch"]
 
     def get_object(self):
@@ -459,3 +447,23 @@ class WishlistDeleteView(APIView):
             return Response({"detail": "관심 항목을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
         wishlist.delete()
         return Response({"detail": "삭제되었습니다."}, status=status.HTTP_200_OK)
+
+
+from .serializers import PasswordChangeSerializer
+
+
+class PasswordChangeView(APIView):
+    """MYPAGE - 비밀번호 변경"""
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = PasswordChangeSerializer(
+            data=request.data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {"detail": "비밀번호가 변경되었습니다."},
+            status=status.HTTP_200_OK,
+        )

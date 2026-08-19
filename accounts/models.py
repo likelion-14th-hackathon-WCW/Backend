@@ -37,19 +37,22 @@ class User(AbstractBaseUser, PermissionsMixin):
         NAVER = "naver", "네이버"
 
     email = models.EmailField(unique=True, help_text="UNIQUE, 로그인 아이디로 사용")
-    nickname = models.CharField(max_length=30, unique=True, help_text="UNIQUE")
+    name = models.CharField(max_length=30, null=True, blank=True, help_text="성명. 소셜 가입은 나중에 채움")
+    phone = models.CharField(max_length=20, null=True, blank=True, help_text="전화번호. 소셜 가입은 나중에 채움")
+    nickname = models.CharField(
+        max_length=30, unique=True, null=True, blank=True,
+        help_text="UNIQUE. 가입 후 마이페이지에서 설정",
+    )
+    profile_image = models.ImageField(
+        upload_to="profiles/", null=True, blank=True, help_text="프로필 사진"
+    )
     provider = models.CharField(
         max_length=10,
         choices=Provider.choices,
         default=Provider.EMAIL,
         help_text="email / kakao / naver",
     )
-    social_id = models.CharField(
-        max_length=255,
-        null=True,
-        blank=True,
-        help_text="소셜 로그인 시 발급되는 식별자",
-    )
+    social_id = models.CharField(max_length=255, null=True, blank=True, help_text="소셜 로그인 식별자")
     is_active = models.BooleanField(default=True, help_text="탈퇴 시 false 처리")
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -57,12 +60,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["nickname"]
+    REQUIRED_FIELDS = []   # nickname 제거. createsuperuser는 email+password만
 
     class Meta:
         db_table = "user"
         constraints = [
-            # 같은 소셜 계정 중복 가입 방지
             models.UniqueConstraint(
                 fields=["provider", "social_id"],
                 name="unique_social_account",

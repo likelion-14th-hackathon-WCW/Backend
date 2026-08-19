@@ -43,24 +43,23 @@ class RankingView(APIView):
     def get(self, request):
         aggregated = (
             Item.objects
-            .values("knot_id", "tassel_id", "decoration_id")
+            .values("knot_id", "tassel_count", "decoration_id")
             .annotate(count=Count("id"))
             .order_by("-count")[:10]
         )
 
         component_ids = set()
         for row in aggregated:
-            component_ids.update([row["knot_id"], row["tassel_id"], row["decoration_id"]])
+            component_ids.update([row["knot_id"], row["decoration_id"]])
         components = Component.objects.filter(id__in=component_ids)
         names = {c.id: c.name for c in components}
         images = {c.id: c.image_url for c in components}
 
         result = []
         for i, row in enumerate(aggregated):
-            # 이 조합으로 만든 노리개 중 가장 최근 것 하나를 대표 이미지/제작자로 사용
             sample = (
                 Item.objects
-                .filter(knot_id=row["knot_id"], tassel_id=row["tassel_id"], decoration_id=row["decoration_id"])
+                .filter(knot_id=row["knot_id"], tassel_count=row["tassel_count"], decoration_id=row["decoration_id"])
                 .select_related("user")
                 .order_by("-created_at")
                 .first()
@@ -71,9 +70,7 @@ class RankingView(APIView):
                 "knot_id": row["knot_id"],
                 "knot_name": names.get(row["knot_id"]),
                 "knot_image_url": images.get(row["knot_id"]),
-                "tassel_id": row["tassel_id"],
-                "tassel_name": names.get(row["tassel_id"]),
-                "tassel_image_url": images.get(row["tassel_id"]),
+                "tassel_count": row["tassel_count"],
                 "decoration_id": row["decoration_id"],
                 "decoration_name": names.get(row["decoration_id"]),
                 "decoration_image_url": images.get(row["decoration_id"]),
@@ -83,7 +80,6 @@ class RankingView(APIView):
                 "creator": (sample.user.nickname or "익명") if sample and sample.user else None,
             })
         return Response(result)
-
 # =========== MAKE_02 ==============
 
 class ComponentListView(generics.ListAPIView):

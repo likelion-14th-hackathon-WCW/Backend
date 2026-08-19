@@ -21,4 +21,6 @@ tqdm==4.70.0
 typing-inspection==0.4.3
 typing_extensions==4.16.0
 requests>=2.31
-mysqlclient>=2.2
+mysqlclient>=2.2django-cloudinary-storage>=0.3
+cloudinary>=1.36
+Pillow>=10.0

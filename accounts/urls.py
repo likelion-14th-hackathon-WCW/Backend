@@ -9,6 +9,7 @@ from .views import (
     OwnershipListCreateView,
     WishlistListCreateView, WishlistDeleteView,
 )
+from .views import PasswordChangeView
 
 urlpatterns = [
     path("signup/", SignupView.as_view(), name="signup"),
@@ -26,4 +27,5 @@ urlpatterns = [
     path("me/ownerships/", OwnershipListCreateView.as_view(), name="ownerships"),
     path("me/wishlist/", WishlistListCreateView.as_view(), name="wishlist"),
     path("me/wishlist/<int:pk>/", WishlistDeleteView.as_view(), name="wishlist-delete"),
+    path("me/password/", PasswordChangeView.as_view(), name="password-change"),
 ]

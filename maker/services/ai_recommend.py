@@ -32,15 +32,14 @@ def _mock_recommend(keyword: str):
 # 실제 OpenAI 호출 로직
 def _call_openai_recommend(keyword: str, exclude_combinations):
     # AI한테 골라달라고 할 후보 목록을 DB에서 가져옴
-    # TODO: 지금은 가짜 더미 데이터 components_seed.py 사용
     # AI가 존재하지 않는 매듭을 지어내지 못하게, 실제 후보만 프롬프트에 넣음
     knots = Component.objects.filter(type="knot")
     decorations = Component.objects.filter(type="decoration")
 
-    options_text = "매듭 목록:\n" + "\n".join(
-        f"- id={c.id}, 이름={c.name}, 의미={c.meaning}" for c in knots
+    knots_text = "매듭 목록 (형태 참고용, 의미 매칭 대상 아님):\n" + "\n".join(
+        f"- id={c.id}, 이름={c.name}, 형태={c.meaning}" for c in knots
     )
-    options_text += "\n\n장식 목록:\n" + "\n".join(
+    decorations_text = "장식 목록 (소망/키워드와 의미로 매칭):\n" + "\n".join(
         f"- id={c.id}, 이름={c.name}, 의미={c.meaning}" for c in decorations
     )
 
@@ -55,14 +54,19 @@ def _call_openai_recommend(keyword: str, exclude_combinations):
 
     prompt = f"""사용자가 입력한 소망/키워드: "{keyword}"
 
-아래 매듭과 장식 목록 중에서, 이 키워드와 가장 잘 어울리는 매듭 1개와 장식 1개를 골라주세요.
-{options_text}
+{decorations_text}
+
+위 장식 목록 중에서, 이 소망/키워드와 상징적 의미가 가장 잘 어울리는 장식 1개를 골라주세요.
+
+{knots_text}
 {exclude_text}
+
+그 다음, 위 매듭 목록 중에서 방금 고른 장식과 형태·분위기가 가장 조화롭게 어울리는 매듭 1개를 골라주세요 (의미가 아니라 형태미·색감 기준으로 판단).
 
 또한 이 조합에 어울리는 짧고 감성적인 제목도 하나 지어주세요 (예: "미드나잇 앰버 앙상블"처럼 15자 내외).
 
 반드시 아래 JSON 형식으로만 답변하세요. 목록에 없는 id는 절대로 사용하지 마세요.
-{{"knot": <매듭 id>, "decoration": <장식 id>, "reason": "<두 조합이 왜 이 소망과 어울리는지 2~3문장 설명>, "suggested_title": "<조합 제목>""}}
+{{"knot": <매듭 id>, "decoration": <장식 id>, "reason": "<두 조합이 왜 이 소망과 어울리는지 2~3문장 설명>, "suggested_title": "<조합 제목>"}}
 """
 
     response = client.chat.completions.create(

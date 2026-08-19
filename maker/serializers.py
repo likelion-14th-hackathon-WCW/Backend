@@ -24,7 +24,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
     # type 검증 로직
     def validate(self, data):
-        checks = {"knot": "knot", "tassel": "tassel", "decoration": "decoration"}
+        checks = {"knot": "knot", "decoration": "decoration"}  # tassel 빠짐
         for field, expected_type in checks.items():
             component = data.get(field)
             if component and component.type != expected_type:
@@ -32,11 +32,13 @@ class ItemSerializer(serializers.ModelSerializer):
                     {field: f"'{field}' 자리에는 type='{expected_type}'인 컴포넌트만 넣을 수 있습니다."}
                 )
 
-        # 완성 조건: 소망/AI추천/색상까지 다 채워져야 디자인 저장 가능
+        # 완성 조건: 소망/AI추천/색상/술개수/제목까지 다 채워져야 저장 가능
         if not data.get("symbol_reason"):
             raise serializers.ValidationError({"symbol_reason": "AI 추천을 받아야 저장할 수 있습니다."})
         if not data.get("color"):
             raise serializers.ValidationError({"color": "색상을 선택해야 저장할 수 있습니다."})
+        if not data.get("tassel_count"):
+            raise serializers.ValidationError({"tassel_count": "술 개수를 선택해야 저장할 수 있습니다."})
         if not data.get("title"):
             raise serializers.ValidationError({"title": "제목을 입력해야 저장할 수 있습니다."})
 

@@ -77,7 +77,7 @@ class RankingView(APIView):
                 "count": row["count"],
                 "title": sample.title if sample else None,
                 "description": sample.description if sample else None,
-                "creator": sample.user.nickname if sample and sample.user else None,
+                "creator": (sample.user.nickname or "익명") if sample and sample.user else None,
             })
         return Response(result)
 # =========== MAKE_02 ==============

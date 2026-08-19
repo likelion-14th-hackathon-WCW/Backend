@@ -99,7 +99,7 @@ def _mock_products():
 
 def _call_openai_recommend_products(item_id: int):
     # select_related로 knot/tassel/decoration을 한 번의 쿼리로 같이 가져옴
-    item = Item.objects.select_related("knot", "tassel", "decoration").get(pk=item_id)
+    item = Item.objects.select_related("knot", "decoration").get(pk=item_id)
     products = Product.objects.all()
 
     # 추천할 상품 자체가 없으면 AI 호출할 필요도 없이 바로 빈 배열 반환
@@ -111,7 +111,7 @@ def _call_openai_recommend_products(item_id: int):
     prompt = f"""완성된 노리개 정보:
 - 매듭: {item.knot.name} ({item.knot.color})
 - 장식: {item.decoration.name} ({item.decoration.color})
-- 술: {item.tassel.name}
+- 술 개수 : {item.tassel_count}개
 - 선택 색상: {item.color}
 
 아래 상품 목록 중에서, 이 노리개의 색상·분위기와 가장 잘 어울릴 만한 상품을 가장 잘 어울리는
@@ -130,7 +130,6 @@ def _call_openai_recommend_products(item_id: int):
         response_format={"type": "json_object"},
     )
     result = json.loads(response.choices[0].message.content)
-    print("AI 원본 응답:", result)  # 확인 후 지우기
 
     # AI가 준 id 중 실제로 존재하는 상품만 걸러서 반환
     valid_ids = {p.id for p in products}

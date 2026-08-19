@@ -35,10 +35,18 @@ class ItemSerializer(serializers.ModelSerializer):
         # 완성 조건: 소망/AI추천/색상/술개수/제목까지 다 채워져야 저장 가능
         if not data.get("symbol_reason"):
             raise serializers.ValidationError({"symbol_reason": "AI 추천을 받아야 저장할 수 있습니다."})
+
         if not data.get("color"):
             raise serializers.ValidationError({"color": "색상을 선택해야 저장할 수 있습니다."})
+
+        VALID_COLORS = {"#17216E", "#FEB9E3", "#FFC95F", "#369F39", "#F37E7E"}
+        color = data.get("color")
+        if color and color.upper() not in VALID_COLORS:
+            raise serializers.ValidationError({"color": "지정된 5개 색상 중 하나만 선택할 수 있습니다."})
+
         if not data.get("tassel_count"):
             raise serializers.ValidationError({"tassel_count": "술 개수를 선택해야 저장할 수 있습니다."})
+        
         if not data.get("title"):
             raise serializers.ValidationError({"title": "제목을 입력해야 저장할 수 있습니다."})
 

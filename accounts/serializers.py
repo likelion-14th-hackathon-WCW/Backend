@@ -12,29 +12,22 @@ PASSWORD_PATTERN = re.compile(
 
 
 class SignupSerializer(serializers.ModelSerializer):
-    """회원가입 - 이메일/비번/비번확인/닉네임 + 약관동의"""
+    """SIGNUP_01 - 이메일 회원가입. 성명/전화번호/이메일/비번 + 약관"""
 
     password = serializers.CharField(write_only=True, min_length=8)
     password_confirm = serializers.CharField(write_only=True)
-    agreed_terms = serializers.BooleanField(write_only=True)
+    agreed_terms = serializers.BooleanField(write_only=True)  # 필수 약관 전체 동의 여부
 
     class Meta:
         model = User
-        fields = ["email", "nickname", "password", "password_confirm", "agreed_terms"]
+        fields = ["email", "name", "phone", "password", "password_confirm", "agreed_terms"]
 
     def validate_email(self, value):
-        # 이메일 중복 시 가입 불가
         if User.objects.filter(email__iexact=value).exists():
             raise serializers.ValidationError("이미 가입된 이메일입니다.")
         return value.lower()
 
-    def validate_nickname(self, value):
-        if User.objects.filter(nickname=value).exists():
-            raise serializers.ValidationError("이미 사용 중인 닉네임입니다.")
-        return value
-
     def validate_password(self, value):
-        # 영문/숫자/특수문자 포함 8자 이상
         if not PASSWORD_PATTERN.match(value):
             raise serializers.ValidationError(
                 "비밀번호는 영문, 숫자, 특수문자를 포함해 8자 이상이어야 합니다."
@@ -42,13 +35,11 @@ class SignupSerializer(serializers.ModelSerializer):
         return value
 
     def validate_agreed_terms(self, value):
-        # 필수 약관 미동의 시 가입 불가
         if not value:
             raise serializers.ValidationError("필수 약관에 동의해야 합니다.")
         return value
 
     def validate(self, attrs):
-        # 비밀번호 확인 불일치 시 가입 불가
         if attrs["password"] != attrs["password_confirm"]:
             raise serializers.ValidationError(
                 {"password_confirm": "비밀번호가 일치하지 않습니다."}
@@ -61,15 +52,12 @@ class SignupSerializer(serializers.ModelSerializer):
         password = validated_data.pop("password")
         return User.objects.create_user(password=password, **validated_data)
 
-
 class UserSerializer(serializers.ModelSerializer):
-    """프로필 조회/응답용"""
-
     provider = serializers.CharField(source="get_provider_display", read_only=True)
 
     class Meta:
         model = User
-        fields = ["id", "email", "nickname", "provider", "created_at"]
+        fields = ["id", "email", "name", "phone", "nickname", "provider", "created_at"]
 
 # ─────────────────────────────────────────────
 # RESERVATION_01 - 매장 방문 연계
@@ -148,18 +136,17 @@ class ReservationCreateSerializer(serializers.ModelSerializer):
 # MYPAGE_01 - 프로필/계정관리
 # ─────────────────────────────────────────────
 
-class NicknameUpdateSerializer(serializers.ModelSerializer):
-    """MYPAGE_01(2) - 닉네임 수정"""
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    """MYPAGE_01(2) - 프로필 수정. 닉네임/성명/전화번호/사진"""
 
     class Meta:
         model = User
-        fields = ["nickname"]
+        fields = ["nickname", "name", "phone", "profile_image"]   # 추가
 
     def validate_nickname(self, value):
-        if User.objects.filter(nickname=value).exclude(pk=self.instance.pk).exists():
+        if value and User.objects.filter(nickname=value).exclude(pk=self.instance.pk).exists():
             raise serializers.ValidationError("이미 사용 중인 닉네임입니다.")
         return value
-
 
 class WithdrawSerializer(serializers.Serializer):
     """MYPAGE_01(8) - 회원탈퇴. 비밀번호 일치 시에만 탈퇴 가능"""
@@ -293,3 +280,50 @@ class WishlistCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context["request"].user
         return Wishlist.objects.create(user=user, **validated_data)
+
+
+class PasswordChangeSerializer(serializers.Serializer):
+    """MYPAGE - 비밀번호 변경. 이메일 가입자만"""
+
+    current_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True, min_length=8)
+    new_password_confirm = serializers.CharField(write_only=True)
+
+    def validate_new_password(self, value):
+        if not PASSWORD_PATTERN.match(value):
+            raise serializers.ValidationError(
+                "비밀번호는 영문, 숫자, 특수문자를 포함해 8자 이상이어야 합니다."
+            )
+        return value
+
+    def validate(self, attrs):
+        user = self.context["request"].user
+
+        # 소셜 유저는 비번 변경 불가
+        if user.provider != User.Provider.EMAIL:
+            raise serializers.ValidationError("소셜 계정은 비밀번호를 변경할 수 없습니다.")
+
+        # 현재 비번 확인
+        if not user.check_password(attrs["current_password"]):
+            raise serializers.ValidationError(
+                {"current_password": "현재 비밀번호가 일치하지 않습니다."}
+            )
+
+        # 새 비번 일치 확인
+        if attrs["new_password"] != attrs["new_password_confirm"]:
+            raise serializers.ValidationError(
+                {"new_password_confirm": "새 비밀번호가 일치하지 않습니다."}
+            )
+
+        # 현재와 같은 비번이면 막기
+        if attrs["current_password"] == attrs["new_password"]:
+            raise serializers.ValidationError(
+                {"new_password": "현재 비밀번호와 다른 비밀번호를 사용해주세요."}
+            )
+        return attrs
+
+    def save(self):
+        user = self.context["request"].user
+        user.set_password(self.validated_data["new_password"])
+        user.save(update_fields=["password"])
+        return user

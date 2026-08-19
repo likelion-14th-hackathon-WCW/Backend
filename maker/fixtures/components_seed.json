@@ -55,7 +55,8 @@
       "season": 2,
       "image_url": "knot_cicada",
       "feature_image_url": "feature_cicada",
-      "feature_description": "뜨거운 여름, 매미의 당당한 노래처럼 소망이 세상에 울려 퍼지길 바라는 마음을 담은 이번 시즌 한정 매듭입니다."
+      "feature_description": "뜨거운 여름, 매미의 당당한 노래처럼 소망이 세상에 울려 퍼지길 바라는 마음을 담은 이번 시즌 한정 매듭입니다.",
+      "feature_name": "매미 매듭"
     }
   },
   {
@@ -139,7 +140,8 @@
       "season": 2,
       "image_url": "decoration_hibiscus",
       "feature_image_url": "feature_hibiscus",
-      "feature_description": "가장 뜨거운 여름 볕 아래에서도 지지 않고 피어나는 무궁화처럼, 이번 시즌 당신의 열정을 눈부시게 피워줄 여름 한정 장식입니다."
+      "feature_description": "가장 뜨거운 여름 볕 아래에서도 지지 않고 피어나는 무궁화처럼, 이번 시즌 당신의 열정을 눈부시게 피워줄 여름 한정 장식입니다.",
+      "feature_name": "무궁화 장식"
     }
   },
   {
@@ -153,7 +155,8 @@
       "season": 2,
       "image_url": "decoration_crane",
       "feature_image_url": "feature_crane",
-      "feature_description": "푸른 여름 하늘을 높이 날아오르는 학의 기개처럼, 당신의 커리어와 이상이 더 높이 도약하기를 응원하는 여름 한정 장식입니다."
+      "feature_description": "푸른 여름 하늘을 높이 날아오르는 학의 기개처럼, 당신의 커리어와 이상이 더 높이 도약하기를 응원하는 여름 한정 장식입니다.",
+      "feature_name": "학조각 옥색 장식"
     }
   },
   {
@@ -210,6 +213,81 @@
       "image_url": "decoration_lotus",
       "feature_image_url": null,
       "feature_description": null
+    }
+  },
+  {
+    "model": "maker.component",
+    "pk": 13,
+    "fields": {
+      "type": "tassel",
+      "name": "남색 술",
+      "color": "#17216E",
+      "meaning": null,
+      "season": null,
+      "image_url": "tassel_남색",
+      "feature_image_url": null,
+      "feature_description": null,
+      "feature_name": null
+    }
+  },
+  {
+    "model": "maker.component",
+    "pk": 14,
+    "fields": {
+      "type": "tassel",
+      "name": "핑크 술",
+      "color": "#FEB9E3",
+      "meaning": null,
+      "season": null,
+      "image_url": "tassel_핑크",
+      "feature_image_url": null,
+      "feature_description": null,
+      "feature_name": null
+    }
+  },
+  {
+    "model": "maker.component",
+    "pk": 15,
+    "fields": {
+      "type": "tassel",
+      "name": "골드 술",
+      "color": "#FFC95F",
+      "meaning": null,
+      "season": null,
+      "image_url": "tassel_골드",
+      "feature_image_url": null,
+      "feature_description": null,
+      "feature_name": null
+    }
+  },
+  {
+    "model": "maker.component",
+    "pk": 16,
+    "fields": {
+      "type": "tassel",
+      "name": "그린 술",
+      "color": "#369F39",
+      "meaning": null,
+      "season": null,
+      "image_url": "tassel_그린",
+      "feature_image_url": null,
+      "feature_description": null,
+      "feature_name": null
+    }
+  },
+  {
+    "model": "maker.component",
+    "pk": 17,
+    "fields": {
+      "type": "tassel",
+      "name": "코랄 술",
+      "color": "#F37E7E",
+      "meaning": null,
+      "season": 2,
+      "image_url": "tassel_코랄",
+      "feature_image_url": "feature_coral",
+      "feature_description": "한여름 태양의 생동감과 눈부신 활기를 닮아, 일상에 짜릿한 에너지와 긍정적인 변화를 불어넣어 줄 여름 한정 컬러입니다.",
+      "feature_name": "코랄 색상 실"
     }
   }
 ]

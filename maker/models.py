@@ -39,6 +39,8 @@ class Component(models.Model):
                                          help_text="시즌 상징 섹션 등 프로모션용 별도 이미지 (시즌 한정 항목에만 값 채워짐)")
     feature_description = models.CharField(max_length=255, null=True, blank=True,
                                            help_text="시즌 상징 갤러리용 설명 문구 - meaning(전통 의미)과 별개, 마케팅 톤. 시즌 한정 항목에만 값 채워짐")
+    feature_name = models.CharField(max_length=100, null=True, blank=True,
+                                    help_text="시즌 상징 갤러리용 표시 이름 - name(에디터용)과 다를 수 있음")
 
     class Meta:
         db_table = 'component'

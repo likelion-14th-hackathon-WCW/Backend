@@ -45,7 +45,7 @@ class RankingView(APIView):
             Item.objects
             .values("knot_id", "tassel_count", "decoration_id")
             .annotate(count=Count("id"))
-            .order_by("-count")[:10]
+            .order_by("-count")[:3]
         )
 
         component_ids = set()

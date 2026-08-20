@@ -170,3 +170,29 @@ class ProductRecommendView(APIView):
         products_by_id = {p.id: p for p in products}
         ordered = [products_by_id[pid] for pid in product_ids if pid in products_by_id]
         return Response(ProductSerializer(ordered, many=True).data)
+
+class ProductRecommendPreviewView(APIView):
+    """저장 전 - 매듭/장식/술개수/색상을 직접 받아서 상품 추천"""
+    def post(self, request):
+        knot_id = request.data.get("knot")
+        decoration_id = request.data.get("decoration")
+        tassel_count = request.data.get("tassel_count")
+        color = request.data.get("color")
+
+        if not all([knot_id, decoration_id, tassel_count, color]):
+            return Response(
+                {"detail": "knot, decoration, tassel_count, color가 모두 필요합니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            product_ids = ai_recommend.recommend_products_preview(knot_id, decoration_id, tassel_count, color)
+        except Component.DoesNotExist:
+            return Response({"detail": "존재하지 않는 매듭 또는 장식입니다."}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({"detail": "상품 추천에 실패했습니다."}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        products = Product.objects.filter(id__in=product_ids)
+        products_by_id = {p.id: p for p in products}
+        ordered = [products_by_id[pid] for pid in product_ids if pid in products_by_id]
+        return Response(ProductSerializer(ordered, many=True).data)

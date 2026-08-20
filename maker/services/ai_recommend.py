@@ -90,40 +90,44 @@ def recommend_products(item_id: int):
     """MAKE_02(커스텀 에디터) - 완성된 노리개 보고 어울리는 MCM 상품 추천."""
     if settings.USE_MOCK_AI:
         return _mock_products()
-    return _call_openai_recommend_products(item_id) # 실제 OpenAI 호출 로직
+    item = Item.objects.select_related("knot", "decoration").get(pk=item_id)
+    return _build_product_recommendation(item.knot, item.decoration, item.tassel_count, item.color)
+
+def recommend_products_preview(knot_id: int, decoration_id: int, tassel_count: int, color: str):
+    """저장 전 - 새로 추가"""
+    if settings.USE_MOCK_AI:
+        return _mock_products()
+    knot = Component.objects.get(pk=knot_id, type="knot")
+    decoration = Component.objects.get(pk=decoration_id, type="decoration")
+    return _build_product_recommendation(knot, decoration, tassel_count, color)
 
 
 def _mock_products():
     return [1, 2] # Product pk 목록 - fixtures에 넣어둔 상품 있으면 그 id로
 
 
-def _call_openai_recommend_products(item_id: int):
-    # select_related로 knot/tassel/decoration을 한 번의 쿼리로 같이 가져옴
-    item = Item.objects.select_related("knot", "decoration").get(pk=item_id)
+def _build_product_recommendation(knot, decoration, tassel_count, color):
+    """실제 AI 호출 - 공통 로직, 둘 다 이걸 재사용"""
     products = Product.objects.all()
-
-    # 추천할 상품 자체가 없으면 AI 호출할 필요도 없이 바로 빈 배열 반환
     if not products.exists():
         return []
 
     products_text = "\n".join(f"- id={p.id}, 이름={p.name}, 가격={p.price}원" for p in products)
 
     prompt = f"""완성된 노리개 정보:
-- 매듭: {item.knot.name} ({item.knot.color})
-- 장식: {item.decoration.name} ({item.decoration.color})
-- 술 개수 : {item.tassel_count}개
-- 선택 색상: {item.color}
+- 매듭: {knot.name}
+- 장식: {decoration.name}
+- 술 개수: {tassel_count}개
+- 선택 색상: {color}
 
-아래 상품 목록 중에서, 이 노리개의 색상·분위기와 가장 잘 어울릴 만한 상품을 가장 잘 어울리는
-순서대로 최대 3개까지 골라주세요 (배열의 첫 번째가 가장 잘 어울리는 상품입니다).
-완벽하게 어울리는 게 없더라도, 색상 계열이나 전체적인 톤이 비슷한 것 중 가장 가까운
+아래 상품 목록 중에서 이 노리개의 색상·분위기와 가장 잘 어울릴 만한 상품을 잘 어울리는 순서대로 최대 3개까지 골라주세요
+(배열의 첫 번째가 가장 잘 어울리는 상품입니다). 완벽하게 어울리는 게 없더라도, 색상 계열이나 전체적인 톤이 비슷한 것 중 가장 가까운
 것들을 최소 1개 이상 골라주세요. 아래 목록에 상품이 하나라도 있다면 빈 배열을 반환하지 마세요.
 {products_text}
 
 반드시 아래 JSON 형식으로만 답변하세요. 목록에 없는 id는 절대 사용하지 마세요.
 {{"product_ids": [<id>, <id>, ...]}}
 """
-
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}],
@@ -131,10 +135,48 @@ def _call_openai_recommend_products(item_id: int):
     )
     result = json.loads(response.choices[0].message.content)
 
-    # AI가 준 id 중 실제로 존재하는 상품만 걸러서 반환
     valid_ids = {p.id for p in products}
     filtered = [pid for pid in result.get("product_ids", []) if pid in valid_ids]
-    return filtered[:3]  # AI가 지시를 안 지켜도 최대 3개로 강제
+    return filtered[:3]
+
+# def _call_openai_recommend_products(item_id: int):
+#     # select_related로 knot/tassel/decoration을 한 번의 쿼리로 같이 가져옴
+#     item = Item.objects.select_related("knot", "decoration").get(pk=item_id)
+#     products = Product.objects.all()
+#
+#     # 추천할 상품 자체가 없으면 AI 호출할 필요도 없이 바로 빈 배열 반환
+#     if not products.exists():
+#         return []
+#
+#     products_text = "\n".join(f"- id={p.id}, 이름={p.name}, 가격={p.price}원" for p in products)
+#
+#     prompt = f"""완성된 노리개 정보:
+# - 매듭: {item.knot.name} ({item.knot.color})
+# - 장식: {item.decoration.name} ({item.decoration.color})
+# - 술 개수 : {item.tassel_count}개
+# - 선택 색상: {item.color}
+#
+# 아래 상품 목록 중에서, 이 노리개의 색상·분위기와 가장 잘 어울릴 만한 상품을 가장 잘 어울리는
+# 순서대로 최대 3개까지 골라주세요 (배열의 첫 번째가 가장 잘 어울리는 상품입니다).
+# 완벽하게 어울리는 게 없더라도, 색상 계열이나 전체적인 톤이 비슷한 것 중 가장 가까운
+# 것들을 최소 1개 이상 골라주세요. 아래 목록에 상품이 하나라도 있다면 빈 배열을 반환하지 마세요.
+# {products_text}
+#
+# 반드시 아래 JSON 형식으로만 답변하세요. 목록에 없는 id는 절대 사용하지 마세요.
+# {{"product_ids": [<id>, <id>, ...]}}
+# """
+#
+#     response = client.chat.completions.create(
+#         model="gpt-4o-mini",
+#         messages=[{"role": "user", "content": prompt}],
+#         response_format={"type": "json_object"},
+#     )
+#     result = json.loads(response.choices[0].message.content)
+#
+#     # AI가 준 id 중 실제로 존재하는 상품만 걸러서 반환
+#     valid_ids = {p.id for p in products}
+#     filtered = [pid for pid in result.get("product_ids", []) if pid in valid_ids]
+#     return filtered[:3]  # AI가 지시를 안 지켜도 최대 3개로 강제
 
 # AI 추천 의미 설명 요약
 def summarize_description(symbol_reason: str):

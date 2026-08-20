@@ -13,4 +13,5 @@ urlpatterns = [
     path("items/<int:pk>/", views.ItemDetailView.as_view(), name="item-detail"),
     path("recommend/", views.RecommendView.as_view(), name="recommend"), # AI 노리개 추천 
     path("items/<int:pk>/recommend-products/", views.ProductRecommendView.as_view(), name="item-recommend-products"), # AI MCM 상품 추천
+    path("recommend-products-preview/", views.ProductRecommendPreviewView.as_view(), name="recommend-products-preview"),
 ]

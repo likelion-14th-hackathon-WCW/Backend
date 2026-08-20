@@ -11,21 +11,39 @@ PASSWORD_PATTERN = re.compile(
 )
 
 
+# 특수문자 불가, 2~10자 (한글/영문/숫자 허용)
+NICKNAME_PATTERN = re.compile(r"^[가-힣a-zA-Z0-9]{2,10}$")
+
+
 class SignupSerializer(serializers.ModelSerializer):
-    """SIGNUP_01 - 이메일 회원가입. 성명/전화번호/이메일/비번 + 약관"""
+    """SIGNUP_01 - 이메일 회원가입. 성명/전화번호/이메일/닉네임/비번 + 약관"""
 
     password = serializers.CharField(write_only=True, min_length=8)
     password_confirm = serializers.CharField(write_only=True)
-    agreed_terms = serializers.BooleanField(write_only=True)  # 필수 약관 전체 동의 여부
+    agreed_terms = serializers.BooleanField(write_only=True)
+    nickname = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = User
-        fields = ["email", "name", "phone", "password", "password_confirm", "agreed_terms"]
+        fields = ["email", "name", "phone", "nickname", "password", "password_confirm", "agreed_terms"]
 
     def validate_email(self, value):
         if User.objects.filter(email__iexact=value).exists():
             raise serializers.ValidationError("이미 가입된 이메일입니다.")
         return value.lower()
+
+    def validate_nickname(self, value):
+        # 빈칸이면 통과 (create에서 자동 배정)
+        if not value:
+            return value
+        # 입력했으면 규칙 검증
+        if not NICKNAME_PATTERN.match(value):
+            raise serializers.ValidationError(
+                "닉네임은 특수문자 없이 2~10자로 입력해주세요."
+            )
+        if User.objects.filter(nickname=value).exists():
+            raise serializers.ValidationError("이미 사용 중인 닉네임입니다.")
+        return value
 
     def validate_password(self, value):
         if not PASSWORD_PATTERN.match(value):
@@ -50,7 +68,18 @@ class SignupSerializer(serializers.ModelSerializer):
         validated_data.pop("password_confirm")
         validated_data.pop("agreed_terms")
         password = validated_data.pop("password")
-        return User.objects.create_user(password=password, **validated_data)
+        nickname = validated_data.pop("nickname", None)
+
+        user = User.objects.create_user(password=password, **validated_data)
+
+        # 닉네임 미입력 시 user{id}로 자동 배정
+        if not nickname:
+            user.nickname = f"user{user.id}"
+        else:
+            user.nickname = nickname
+        user.save(update_fields=["nickname"])
+
+        return user
 
 class UserSerializer(serializers.ModelSerializer):
     provider = serializers.CharField(source="get_provider_display", read_only=True)
@@ -141,9 +170,15 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["nickname", "name", "phone", "profile_image"]   # 추가
+        fields = ["nickname", "name", "phone", "profile_image"]
 
     def validate_nickname(self, value):
+        # 특수문자 불가 2~10자 (회원가입과 동일 규칙)
+        if value and not NICKNAME_PATTERN.match(value):
+            raise serializers.ValidationError(
+                "닉네임은 특수문자 없이 2~10자로 입력해주세요."
+            )
+        # 중복 확인 (본인 제외)
         if value and User.objects.filter(nickname=value).exclude(pk=self.instance.pk).exists():
             raise serializers.ValidationError("이미 사용 중인 닉네임입니다.")
         return value

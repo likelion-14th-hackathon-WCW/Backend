@@ -141,12 +141,16 @@ class SocialLoginView(APIView):
             return user, False
 
         # 소셜 유저는 name/phone/nickname 모두 빈칸 → 나중에 프로필에서 설정
-        user = User.objects.create_user(
-            email=profile.get("email") or f"{profile['social_id']}@{provider}.social",
-            provider=provider,
-            social_id=profile["social_id"],
-            password=None,
-        )
+            user = User.objects.create_user(
+                email=profile.get("email") or f"{profile['social_id']}@{provider}.social",
+                provider=provider,
+                social_id=profile["social_id"],
+                password=None,
+            )
+        # 닉네임 자동 배정
+        user.nickname = f"user{user.id}"
+        user.save(update_fields=["nickname"])
+
         return user, True
 
 # ─────────────────────────────────────────────

@@ -34,7 +34,7 @@ USE_MOCK_AI = config("USE_MOCK_AI", default=True, cast=bool)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-ALLOWED_HOSTS = [s
+ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
     "1.201.116.232",

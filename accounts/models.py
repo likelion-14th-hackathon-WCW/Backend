@@ -101,54 +101,36 @@ class Reservation(models.Model):
         CHANGED = "changed", "변경됨"
         CANCELED = "canceled", "취소됨"
 
+    reservation_no = models.CharField(
+        max_length=20, unique=True, null=True, blank=True,
+        help_text="예약번호 MCM-연도-4자리. 생성 시 자동",
+    )  # 추가
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        null=True,
-        blank=True,
+        null=True, blank=True,
         related_name="reservations",
         help_text="USER 참조. 비로그인 예약 시 NULL",
-    )  # 회원 참조
-    store = models.ForeignKey(
-        Store,
-        on_delete=models.PROTECT,
-        related_name="reservations",
-    )  # 매장 참조
-    reserved_at = models.DateTimeField(help_text="예약 가능 날짜·시간만")  # 예약 날짜/시간
+    )
+    store = models.ForeignKey(Store, on_delete=models.PROTECT, related_name="reservations")
+    reserved_at = models.DateTimeField(help_text="예약 가능 날짜·시간만")
     status = models.CharField(
-        max_length=20,
-        choices=Status.choices,
-        default=Status.CONFIRMED,
-        help_text="confirmed / changed / canceled",
-    )  # 예약 상태
+        max_length=20, choices=Status.choices, default=Status.CONFIRMED,
+    )
     guest_id = models.CharField(
-        max_length=100,
-        null=True,
-        blank=True,
-        help_text="비로그인 예약 시 필수",
-    )  # 비회원 확인용 아이디
-    guest_password = models.CharField(
-        max_length=255,
-        null=True,
-        blank=True,
-        help_text="비로그인 예약 시 필수, 해시 저장",
-    )  # 비회원 확인용 비번
-    created_at = models.DateTimeField(auto_now_add=True)  # 생성 일시
+        max_length=100, null=True, blank=True,
+        help_text="비로그인 예약 시 필수. 이메일로 사용",
+    )
+    guest_password = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "reservation"
-        constraints = [
-            # 같은 매장 같은 시간 중복 예약 제한
-            models.UniqueConstraint(
-                fields=["store", "reserved_at"],
-                name="unique_store_time",
-            )
-        ]
+        # unique_store_time 제약 제거 → 한 슬롯에 여러 명(최대 5명) 허용
 
     def __str__(self):
         who = self.user.nickname if self.user else (self.guest_id or "guest")
         return f"[{self.get_status_display()}] {self.store.name} - {who}"
-
 
 # 위시리스트
 class Wishlist(models.Model):

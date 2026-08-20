@@ -210,23 +210,40 @@ class BookedTimeListView(APIView):
 
 
 class ReservationCreateView(APIView):
-    """RESERVATION_01(3) - 예약 완료. 로그인/비로그인 모두 가능"""
+    """RESERVATION_01(3) - 예약 완료. 한 슬롯 최대 5명"""
 
     permission_classes = [AllowAny]
+    MAX_PER_SLOT = 5
 
     def post(self, request):
         serializer = ReservationCreateSerializer(
             data=request.data, context={"request": request}
         )
         serializer.is_valid(raise_exception=True)
-        try:
-            reservation = serializer.save()
-        except IntegrityError:
-            # 같은 매장·같은 시간 중복 예약 (unique_store_time)
+
+        store = serializer.validated_data["store"]
+        reserved_at = serializer.validated_data["reserved_at"]
+
+        # 같은 매장·시간에 유효한 예약(취소 아님)이 5명 미만인지 확인
+        current_count = Reservation.objects.filter(
+            store=store,
+            reserved_at=reserved_at,
+        ).exclude(status=Reservation.Status.CANCELED).count()
+
+        if current_count >= self.MAX_PER_SLOT:
             return Response(
-                {"detail": "이미 예약된 시간입니다. 다른 시간을 선택해주세요."},
+                {"detail": "해당 시간은 예약이 마감되었습니다. 다른 시간을 선택해주세요."},
                 status=status.HTTP_409_CONFLICT,
             )
+
+        reservation = serializer.save()
+
+        # 예약번호 생성: MCM-{연도}-{id 4자리}
+        from django.utils import timezone
+        year = timezone.now().year
+        reservation.reservation_no = f"MCM-{year}-{reservation.id:04d}"
+        reservation.save(update_fields=["reservation_no"])
+
         return Response(
             ReservationSerializer(reservation).data,
             status=status.HTTP_201_CREATED,
@@ -469,5 +486,87 @@ class PasswordChangeView(APIView):
         serializer.save()
         return Response(
             {"detail": "비밀번호가 변경되었습니다."},
+            status=status.HTTP_200_OK,
+        )
+
+# ─────────────────────────────────────────────
+# 비회원 예약 조회/취소 (guest_id = 이메일)
+# ─────────────────────────────────────────────
+from django.contrib.auth.hashers import check_password
+from .serializers import (
+    GuestReservationLookupSerializer,
+    GuestReservationCancelSerializer,
+)
+
+
+class GuestReservationLookupView(APIView):
+    """비회원 예약 조회. 이메일 + 비밀번호로 본인 예약 목록 반환"""
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = GuestReservationLookupSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data["email"]
+        raw_password = serializer.validated_data["password"]
+
+        # guest_id(=이메일)로 비회원 예약 조회
+        reservations = (
+            Reservation.objects.filter(guest_id=email, user__isnull=True)
+            .select_related("store")
+            .order_by("-reserved_at")
+        )
+
+        if not reservations.exists():
+            return Response(
+                {"detail": "예약 내역을 찾을 수 없습니다."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # 비밀번호 확인 (첫 예약 해시로 대조)
+        if not check_password(raw_password, reservations.first().guest_password):
+            return Response(
+                {"detail": "이메일 또는 비밀번호가 일치하지 않습니다."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        return Response(
+            ReservationSerializer(reservations, many=True).data,
+            status=status.HTTP_200_OK,
+        )
+
+
+class GuestReservationCancelView(APIView):
+    """비회원 예약 취소. 예약 id + 이메일 + 비밀번호 확인 후 취소"""
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = GuestReservationCancelSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        reservation_id = serializer.validated_data["reservation_id"]
+        email = serializer.validated_data["email"]
+        raw_password = serializer.validated_data["password"]
+
+        reservation = Reservation.objects.filter(
+            id=reservation_id, guest_id=email, user__isnull=True
+        ).first()
+
+        if reservation is None:
+            return Response(
+                {"detail": "예약을 찾을 수 없습니다."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if not check_password(raw_password, reservation.guest_password):
+            return Response(
+                {"detail": "비밀번호가 일치하지 않습니다."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        reservation.status = Reservation.Status.CANCELED
+        reservation.save(update_fields=["status"])
+        return Response(
+            {"detail": "예약이 취소되었습니다."},
             status=status.HTTP_200_OK,
         )

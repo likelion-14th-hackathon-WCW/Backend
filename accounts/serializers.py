@@ -105,15 +105,12 @@ class StoreSerializer(serializers.ModelSerializer):
 
 
 class ReservationSerializer(serializers.ModelSerializer):
-    """예약 응답용"""
-
     store_name = serializers.CharField(source="store.name", read_only=True)
     status = serializers.CharField(source="get_status_display", read_only=True)
 
     class Meta:
         model = Reservation
-        fields = ["id", "store", "store_name", "reserved_at", "status", "created_at"]
-
+        fields = ["id", "reservation_no", "store", "store_name", "reserved_at", "status", "created_at"]
 
 class ReservationCreateSerializer(serializers.ModelSerializer):
     """
@@ -362,3 +359,18 @@ class PasswordChangeSerializer(serializers.Serializer):
         user.set_password(self.validated_data["new_password"])
         user.save(update_fields=["password"])
         return user
+
+# ─────────────────────────────────────────────
+# 비회원 예약 조회/취소 (guest_id = 이메일)
+# ─────────────────────────────────────────────
+class GuestReservationLookupSerializer(serializers.Serializer):
+    """비회원 예약 조회 - 이메일 + 비밀번호"""
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+
+class GuestReservationCancelSerializer(serializers.Serializer):
+    """비회원 예약 취소 - 예약 id + 이메일 + 비밀번호"""
+    reservation_id = serializers.IntegerField()
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)

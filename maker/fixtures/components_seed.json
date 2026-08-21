@@ -8,16 +8,55 @@
       "end_date": "2026-05-31"
     }
   },
-
+  {
+    "model": "maker.season",
+    "pk": 2,
+    "fields": {
+      "name": "2026 여름",
+      "start_date": "2026-06-01",
+      "end_date": "2026-08-31"
+    }
+  },
+  {
+    "model": "maker.season",
+    "pk": 3,
+    "fields": {
+      "name": "2026 가을",
+      "start_date": "2026-09-01",
+      "end_date": "2026-11-30"
+    }
+  },
+  {
+    "model": "maker.season",
+    "pk": 4,
+    "fields": {
+      "name": "2026 겨울",
+      "start_date": "2026-12-01",
+      "end_date": "2027-02-28"
+    }
+  },
+  {
+    "model": "maker.season",
+    "pk": 5,
+    "fields": {
+      "name": "2027 봄",
+      "start_date": "2027-03-01",
+      "end_date": "2027-05-31"
+    }
+  },
   {
     "model": "maker.component",
     "pk": 1,
     "fields": {
       "type": "knot",
-      "name": "국화 매듭",
-      "color": "#F4C430",
-      "meaning": "국화는 서리를 이겨내고 피어나는 모습에서 장수와 인내, 굳은 절개를 상징합니다.",
-      "season": null
+      "name": "매미 매듭",
+      "color": null,
+      "meaning": "중심 몸통을 기준으로 양옆에 날개처럼 대칭 고리가 펼쳐진 모양. 매미의 실루엣을 그대로 형상화한 입체적인 매듭.",
+      "season": 2,
+      "image_url": "knot_cicada",
+      "feature_image_url": "feature_cicada",
+      "feature_description": "뜨거운 여름, 매미의 당당한 노래처럼 소망이 세상에 울려 퍼지길 바라는 마음을 담은 이번 시즌 한정 매듭입니다.",
+      "feature_name": "매미 매듭"
     }
   },
   {
@@ -25,10 +64,13 @@
     "pk": 2,
     "fields": {
       "type": "knot",
-      "name": "연꽃 매듭",
-      "color": "#F7C6D9",
-      "meaning": "진흙 속에서도 맑게 피어나는 연꽃은 순수함과 깨달음, 새로운 시작을 상징합니다.",
-      "season": 1
+      "name": "삼정자 매듭",
+      "color": null,
+      "meaning": "정자(亭子) 건축물의 형태를 본떠 만든 매듭. 좌우 대칭을 이루며 단아하고 정돈된 인상을 줌.",
+      "season": null,
+      "image_url": "knot_pavilion",
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
   {
@@ -36,10 +78,13 @@
     "pk": 3,
     "fields": {
       "type": "knot",
-      "name": "매화 매듭",
-      "color": "#EDEDED",
-      "meaning": "매서운 겨울을 견디고 가장 먼저 피어나는 매화는 인내와 절개, 새봄의 전령을 상징합니다.",
-      "season": null
+      "name": "동심결 매듭",
+      "color": null,
+      "meaning": "두 개의 고리가 서로 겹쳐 하나로 맞물리는 모양. 좌우 대칭의 고리가 교차하며 이어지는 구조.",
+      "season": null,
+      "image_url": "knot_unity",
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
   {
@@ -47,10 +92,13 @@
     "pk": 4,
     "fields": {
       "type": "knot",
-      "name": "모란 매듭",
-      "color": "#C2185B",
-      "meaning": "예로부터 '꽃 중의 왕'이라 불린 모란은 부귀와 영화를 상징합니다.",
-      "season": null
+      "name": "장구 매듭",
+      "color": null,
+      "meaning": "국악기 '장구'처럼 가운데는 잘록하고 양끝은 볼록하게 벌어진 형태. 매듭 위아래로 늘어진 끈이 균형을 이룸.",
+      "season": null,
+      "image_url": "knot_janggu",
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
   {
@@ -58,10 +106,13 @@
     "pk": 5,
     "fields": {
       "type": "knot",
-      "name": "석류 매듭",
-      "color": "#B22222",
-      "meaning": "씨앗이 가득한 석류는 다산과 번영, 풍요로운 앞날을 상징합니다.",
-      "season": null
+      "name": "생쪽 매듭",
+      "color": null,
+      "meaning": "생강 한 쪽을 닮은 세 개의 귀(고리)가 달린 아담하고 소박한 형태. 매듭 중 가장 기본이 되는 형태 중 하나.",
+      "season": null,
+      "image_url": "knot_ginger",
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
   {
@@ -69,22 +120,28 @@
     "pk": 6,
     "fields": {
       "type": "knot",
-      "name": "나비 매듭",
-      "color": "#7E57C2",
-      "meaning": "자유롭게 날아오르는 나비는 사랑과 행복한 변화, 재회를 상징합니다.",
-      "season": null
+      "name": "귀도래 매듭",
+      "color": null,
+      "meaning": "가장 기본인 도래매듭(X자형 매듭) 양쪽에 작은 귀(고리) 장식을 더한 형태. 정갈한 중심에 대칭 고리 두 개가 붙은 모양.",
+      "season": null,
+      "image_url": "knot_ear_ring",
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
-
   {
     "model": "maker.component",
     "pk": 7,
     "fields": {
       "type": "decoration",
-      "name": "골드 타이거 장식",
-      "color": "#D4AF37",
-      "meaning": "호랑이는 나쁜 기운을 물리치고 강력한 보호를 기원하는 전통적인 수호의 상징입니다.",
-      "season": null
+      "name": "무궁화 장식",
+      "color": null,
+      "meaning": "대한민국 나라꽃(국화)으로 '영원히 피고 또 피어서 지지 않는 꽃'이라는 뜻을 가지며, 매일 새 꽃이 피고 지기를 100일간 반복해 민족의 근면·끈기와 정절·절개를 상징합니다.",
+      "season": 2,
+      "image_url": "decoration_hibiscus",
+      "feature_image_url": "feature_hibiscus",
+      "feature_description": "가장 뜨거운 여름 볕 아래에서도 지지 않고 피어나는 무궁화처럼, 이번 시즌 당신의 열정을 눈부시게 피워줄 여름 한정 장식입니다.",
+      "feature_name": "무궁화 장식"
     }
   },
   {
@@ -92,10 +149,14 @@
     "pk": 8,
     "fields": {
       "type": "decoration",
-      "name": "옥 팬던트",
-      "color": "#7FBF9E",
-      "meaning": "맑고 단단한 옥은 고귀함과 변치 않는 품격을 상징합니다.",
-      "season": null
+      "name": "학 장식",
+      "color": null,
+      "meaning": "십장생(장수를 상징하는 열 가지 사물) 중 하나로 장수를 상징하며, 한번 짝을 맺으면 평생 함께한다고 여겨져 부부애를, 고고한 자태로 인해 선비의 기상을 상징하기도 합니다.",
+      "season": 2,
+      "image_url": "decoration_crane",
+      "feature_image_url": "feature_crane",
+      "feature_description": "푸른 여름 하늘을 높이 날아오르는 학의 기개처럼, 당신의 커리어와 이상이 더 높이 도약하기를 응원하는 여름 한정 장식입니다.",
+      "feature_name": "학조각 옥색 장식"
     }
   },
   {
@@ -103,10 +164,13 @@
     "pk": 9,
     "fields": {
       "type": "decoration",
-      "name": "박쥐 장식",
-      "color": "#5C4033",
-      "meaning": "예로부터 박쥐는 발음이 비슷한 '복(福)'과 연결되어 복과 건강을 상징합니다.",
-      "season": null
+      "name": "호박보석 장식",
+      "color": null,
+      "meaning": "예로부터 칠보(귀하게 여긴 보석 일곱 가지) 중 하나로 노리개·장신구에 즐겨 사용됐습니다. 조선시대엔 신분에 따라 사용이 제한된 기록이 있을 만큼 고귀함의 상징으로 쓰였습니다.",
+      "season": null,
+      "image_url": "decoration_amber",
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
   {
@@ -114,10 +178,13 @@
     "pk": 10,
     "fields": {
       "type": "decoration",
-      "name": "토끼 장식",
-      "color": "#E8DCC8",
-      "meaning": "토끼는 지혜와 다산, 풍요로운 살림을 상징하는 동물로 여겨져 왔습니다.",
-      "season": null
+      "name": "고래 장식",
+      "color": null,
+      "meaning": "풍랑에 빠진 어부를 구해준 은혜로운 존재로 전해지며, 예로부터 크고 강인한 힘의 상징으로 여겨졌습니다.",
+      "season": null,
+      "image_url": "decoration_whale",
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
   {
@@ -125,10 +192,13 @@
     "pk": 11,
     "fields": {
       "type": "decoration",
-      "name": "학 장식",
-      "color": "#FFFFFF",
-      "meaning": "고고하게 하늘을 나는 학은 장수와 고귀함, 신선의 세계를 상징합니다.",
-      "season": null
+      "name": "나비 장식",
+      "color": null,
+      "meaning": "부부간의 화합과 금실을 상징하는 대표적인 문양으로, 혼례복·가구·노리개 등에 널리 쓰였습니다. 장자의 '호접몽' 고사와 맞물려 자유로움을 뜻하기도 합니다.",
+      "season": null,
+      "image_url": "decoration_butterfly",
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
   {
@@ -136,22 +206,28 @@
     "pk": 12,
     "fields": {
       "type": "decoration",
-      "name": "비취 장식",
-      "color": "#00A86B",
-      "meaning": "맑고 청량한 비취색은 순수함과 재생, 봄의 생명력을 상징합니다.",
-      "season": 1
+      "name": "연꽃 장식",
+      "color": null,
+      "meaning": "진흙 속에서도 더러움에 물들지 않고 피어나는 속성 때문에 청결·순결을, 씨앗의 강한 생명력 때문에 생명 창조와 번영을 상징합니다. 불교를 대표하는 꽃이기도 합니다.",
+      "season": null,
+      "image_url": "decoration_lotus",
+      "feature_image_url": null,
+      "feature_description": null
     }
   },
-
   {
     "model": "maker.component",
     "pk": 13,
     "fields": {
       "type": "tassel",
-      "name": "흑색 술",
-      "color": "#1A1A1A",
+      "name": "남색 술",
+      "color": "#17216E",
       "meaning": null,
-      "season": null
+      "season": null,
+      "image_url": "tassel_남색",
+      "feature_image_url": null,
+      "feature_description": null,
+      "feature_name": null
     }
   },
   {
@@ -159,10 +235,14 @@
     "pk": 14,
     "fields": {
       "type": "tassel",
-      "name": "진회색 술",
-      "color": "#4D4D4D",
+      "name": "핑크 술",
+      "color": "#FEB9E3",
       "meaning": null,
-      "season": null
+      "season": null,
+      "image_url": "tassel_핑크",
+      "feature_image_url": null,
+      "feature_description": null,
+      "feature_name": null
     }
   },
   {
@@ -170,10 +250,14 @@
     "pk": 15,
     "fields": {
       "type": "tassel",
-      "name": "회색 술",
-      "color": "#808080",
+      "name": "골드 술",
+      "color": "#FFC95F",
       "meaning": null,
-      "season": null
+      "season": null,
+      "image_url": "tassel_골드",
+      "feature_image_url": null,
+      "feature_description": null,
+      "feature_name": null
     }
   },
   {
@@ -181,10 +265,14 @@
     "pk": 16,
     "fields": {
       "type": "tassel",
-      "name": "연회색 술",
-      "color": "#B3B3B3",
+      "name": "그린 술",
+      "color": "#369F39",
       "meaning": null,
-      "season": null
+      "season": null,
+      "image_url": "tassel_그린",
+      "feature_image_url": null,
+      "feature_description": null,
+      "feature_name": null
     }
   },
   {
@@ -192,21 +280,14 @@
     "pk": 17,
     "fields": {
       "type": "tassel",
-      "name": "아이보리 술",
-      "color": "#F5F0E6",
+      "name": "코랄 술",
+      "color": "#F37E7E",
       "meaning": null,
-      "season": 1
-    }
-  },
-  {
-    "model": "maker.component",
-    "pk": 18,
-    "fields": {
-      "type": "tassel",
-      "name": "골드 술",
-      "color": "#D4AF37",
-      "meaning": null,
-      "season": 1
+      "season": 2,
+      "image_url": "tassel_코랄",
+      "feature_image_url": "feature_coral",
+      "feature_description": "한여름 태양의 생동감과 눈부신 활기를 닮아, 일상에 짜릿한 에너지와 긍정적인 변화를 불어넣어 줄 여름 한정 컬러입니다.",
+      "feature_name": "코랄 색상 실"
     }
   }
 ]

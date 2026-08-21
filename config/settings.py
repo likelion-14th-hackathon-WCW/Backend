@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,13 +21,26 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
+# ✅ (유빈) .env로 이동
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-@%*@5i8h&^gw66lh=r%&gpn5m)qu^lt@-!1bx9sp!di1%@9(g9"
+SECRET_KEY = config('SECRET_KEY')
+
+# ✅ (유빈) .env에 OpenAI KEY 추가
+# OPENAI_API_KEY WARNING: keep the secret key used in production secret!
+OPENAI_API_KEY = config("OPENAI_API_KEY", default="")
+
+# ✅ (유빈) 테스트용 Mock 모드 추가
+USE_MOCK_AI = config("USE_MOCK_AI", default=True, cast=bool)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "1.201.116.232",
+    "https://yeongyeol.duckdns.org",
+]
+DEBUG = False
 
 
 # Application definition
@@ -38,11 +53,17 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "maker",
+    "accounts",
+    "cloudinary_storage",
+    "cloudinary",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -75,13 +96,28 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
+# ✅ (유빈) db.sqlite3 -> mysql 전환을 위해 주석 처리
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
+# ✅ (유빈) db.sqlite3 -> mysql 전환
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": config("DB_NAME"),
+        "USER": config("DB_USER"),
+        "PASSWORD": config("DB_PASSWORD"),
+        "HOST": config("DB_HOST"),
+        "PORT": config("DB_PORT"),
+        "OPTIONS": {"charset": "utf8mb4"},
     }
 }
 
+AUTH_USER_MODEL = "accounts.User"
 
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
@@ -128,3 +164,42 @@ MAILERS = {
         "BACKEND": "django.core.mail.backends.console.EmailBackend",
     },
 }
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.BasicAuthentication",  # 로컬 테스트용
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
+
+# 유빈 - 테스트를 위한 인증 토큰 기간 설정
+# SIMPLE_JWT = {
+#     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+#     "ROTATE_REFRESH_TOKENS": True,
+#     "BLACKLIST_AFTER_ROTATION": True,
+# }
+
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME"),
+    "API_KEY": config("CLOUDINARY_API_KEY"),
+    "API_SECRET": config("CLOUDINARY_API_SECRET"),
+}
+
+# 미디어 파일 저장소를 Cloudinary로
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+# CORS 설정
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",              # 로컬 프론트
+    "https://mcm-yeongyeol.vercel.app",   # 배포 프론트 (Vercel, 끝 슬래시 없이)
+]
+
+# 인증정보(쿠키·Authorization 헤더) 허용
+CORS_ALLOW_CREDENTIALS = True
